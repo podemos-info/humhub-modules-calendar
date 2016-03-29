@@ -8,7 +8,7 @@
  */
 use yii\helpers\Html;
 use yii\helpers\Url;
-humhub\modules\calendar\Assets::register($this);
+humhub\modules\calendar\ExternalSourcesAssets::register($this);
 
 ?>
 

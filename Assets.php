@@ -15,7 +15,6 @@ class Assets extends AssetBundle
 
     public $css = [
         'fullcalendar/fullcalendar.css',
-	'calendar.css',
             //'fullcalendar/fullcalendar.print.css', // print
     ];
     public $js = [

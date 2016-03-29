@@ -105,7 +105,7 @@ class CalendarExternalSource extends \humhub\modules\content\components\ContentA
 	if ($this->last_update)
 		$last_update = strtotime($this->last_update);
 	else
-		$last_update = time();
+		$last_update = 0;
 	
 	//browse lines array to update only last modified events and retrieve all event uids 
 	$last_element_num_line = -1;
@@ -171,13 +171,14 @@ class CalendarExternalSource extends \humhub\modules\content\components\ContentA
 				'external_uid' => $uid
 			]);
 		}
-		$entry->content->setContainer($container);
-		$entry->is_public = $public;
+		$entry->content->container = $container;
 		$entry->title = $event->getProperty("summary");
 		$entry->description = $event->getProperty("description");
 		$entry->start_datetime = $start_date;
 		$entry->end_datetime = $end_date;
 		$entry->all_day = $all_day;
+		$entry->is_public = $public;
+		$entry->validate();
 		$entry->save();
 	}
    }

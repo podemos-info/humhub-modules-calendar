@@ -7,6 +7,7 @@ use DateInterval;
 use Yii;
 use yii\base\Exception;
 use humhub\libs\DbDateValidator;
+use humhub\modules\content\modeles\Content;
 use humhub\modules\content\components\ContentContainerActiveRecord;
 use humhub\modules\content\components\ContentActiveRecord;
 use humhub\modules\calendar\models\CalendarEntryParticipant;
@@ -274,7 +275,7 @@ class CalendarEntry extends ContentActiveRecord implements \humhub\modules\searc
 
     public function beforeSave($insert)
     {
-        $this->content->visibility = $this->is_public;
+        $this->content->visibility = $this->is_public ? Content::VISIBILITY_PUBLIC : Content::VISIBILITY_PRIVATE;
 
         $startDateTime = new \DateTime($this->start_datetime);
         $endDateTime = new \DateTime($this->end_datetime);
