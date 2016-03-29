@@ -27,6 +27,8 @@ use humhub\modules\calendar\models\CalendarEntryParticipant;
  * @property integer $recur_interval
  * @property string $recur_end
  * @property string $color
+ * @property integer $external_source_id
+ * @property string $external_id
  */
 class CalendarEntry extends ContentActiveRecord implements \humhub\modules\search\interfaces\Searchable
 {

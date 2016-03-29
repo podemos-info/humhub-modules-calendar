@@ -128,7 +128,7 @@ $this->registerCssFile('@web/resources/space/colorpicker/css/bootstrap-colorpick
                 </div>
                 <div class="col-md-4 text-right">
                     <?php
-                    if (!$calendarEntry->isNewRecord) {
+                    if (!$calendarEntry->isNewRecord && !$calendarEntry->external_source_id) {
                         echo Html::a(Yii::t('CalendarModule.views_entry_edit', 'Delete'), $contentContainer->createUrl('//calendar/entry/delete', array('id' => $calendarEntry->id)), array('class' => 'btn btn-danger'));
                     }
                     ?>

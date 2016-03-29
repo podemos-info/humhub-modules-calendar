@@ -7,6 +7,7 @@ use humhub\modules\user\widgets\ProfileMenu;
 use humhub\modules\space\widgets\Sidebar;
 use humhub\modules\user\widgets\ProfileSidebar;
 use humhub\widgets\TopMenu;
+use humhub\commands\CronController;
 
 return array(
     'id' => 'calendar',
@@ -19,6 +20,7 @@ return array(
         array('class' => ProfileSidebar::className(), 'event' => ProfileSidebar::EVENT_INIT, 'callback' => array('humhub\modules\calendar\Events', 'onProfileSidebarInit')),
         array('class' => humhub\modules\dashboard\widgets\Sidebar::className(), 'event' => humhub\modules\dashboard\widgets\Sidebar::EVENT_INIT, 'callback' => array('humhub\modules\calendar\Events', 'onDashboardSidebarInit')),
         array('class' => TopMenu::className(), 'event' => TopMenu::EVENT_INIT, 'callback' => array('humhub\modules\calendar\Events', 'onTopMenuInit')),
+        array('class' => CronController::className(), 'event' => CronController::EVENT_ON_HOURLY_RUN, 'callback' => array('humhub\modules\calendar\Events', 'onHourlyCron')),
     ),
 );
 ?>

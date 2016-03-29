@@ -5,6 +5,7 @@ namespace humhub\modules\calendar;
 use Yii;
 use yii\helpers\Url;
 use humhub\modules\calendar\widgets\NextEvents;
+use humhub\modules\calendar\models\CalendarExternalSource;
 
 /**
  * Description of CalendarEvents
@@ -96,4 +97,14 @@ class Events extends \yii\base\Object
         }
     }
 
+    public static function onHourlyCron($event)
+    {
+        $controller = $event->sender;
+        $controller->stdout("Sync external events... ");
+        $sources = CalendarExternalSource::find()->orderBy('last_update')->limit(20);
+        foreach ($sources->each() as $source) {
+            $source->updateEvents();
+        }
+        $controller->stdout('done.' . PHP_EOL, \yii\helpers\Console::FG_GREEN);
+    }
 }

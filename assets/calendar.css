@@ -1,0 +1,87 @@
+/* css for the external-source module site */
+/* css for the calendar module site */
+#calendar-empty-txt {
+	visibility:hidden;
+	display:none;
+	padding-bottom:20px;
+}
+
+.toggle-view-mode {
+	padding-bottom:20px;
+	float:left;
+}
+
+.panel-calendar-external-source {
+	
+}
+
+.panel-calendar-external-source .panel-heading .heading {
+	position:relative;	
+	padding:0;	
+}
+
+.panel-calendar-external-source .panel-body {
+	
+}
+
+.panel-calendar-external-source .panel-body .media .media-heading {
+	
+}
+
+.panel-calendar-external-source .panel-body .media .media-heading {
+	margin:0;
+	padding-bottom:15px;
+}
+
+.panel-calendar-external-source .panel-body .media .media-body {
+	
+}
+
+.panel-calendar-external-source .panel-body .media .media-body ul {
+	
+}
+
+.panel-calendar-external-source .panel-body .media .media-body ul li {
+	position:relative;
+	padding-bottom:10px;
+}
+
+.panel-calendar-external-source .panel-body .media .media-body ul li:last-child {
+	padding-bottom:0;
+}
+
+.panel-calendar-external-source .calendar-interaction-controls {
+	font-size: 11px;
+	color: #AEAEAE;
+}
+
+.panel-calendar-external-source .calendar-interaction-controls a {
+	font-size: 11px;
+	color: #AEAEAE;
+}
+
+.panel-calendar-external-source .calendar-edit-controls {
+	position:absolute;
+	display:inline;
+	top:0;
+	right:0;
+}
+
+.panel-calendar-external-source .btn-xs.btn-danger, .panel-calendar-external-source .btn-xs.btn-primary {
+    opacity: 0.4;
+}
+
+.panel-calendar-external-source .btn-xs.btn-danger:hover, .panel-calendar-external-source .btn-xs.btn-primary:hover {
+    opacity: 1;
+}
+
+
+.panel-calendar-external-source .calendar-edit-controls a {
+	padding-left:4px;
+}
+
+.panel-calendar-external-source .fa {
+    font-size: 14px;
+    /*width: 16px;*/
+}
+

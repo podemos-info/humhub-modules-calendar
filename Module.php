@@ -7,6 +7,7 @@ use humhub\modules\space\models\Space;
 use humhub\modules\user\models\User;
 use humhub\modules\calendar\models\CalendarEntry;
 use humhub\modules\content\components\ContentContainerActiveRecord;
+use humhub\modules\calendar\models\CalendarExternalSource;
 
 class Module extends \humhub\modules\content\components\ContentContainerModule
 {
@@ -25,9 +26,20 @@ class Module extends \humhub\modules\content\components\ContentContainerModule
     /**
      * @inheritdoc
      */
+    public function getContentContainerConfigUrl(ContentContainerActiveRecord $container)
+    {
+        return $container->createUrl('/calendar/external-source/index');
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function disable()
     {
         foreach (CalendarEntry::find()->all() as $entry) {
+            $entry->delete();
+        }
+        foreach (CalendarExternalSource::find()->all() as $entry) {
             $entry->delete();
         }
 
@@ -41,6 +53,9 @@ class Module extends \humhub\modules\content\components\ContentContainerModule
     {
         parent::disableContentContainer($container);
         foreach (CalendarEntry::find()->contentContainer($container)->all() as $entry) {
+            $entry->delete();
+        }
+        foreach (CalendarExternalSource::find()->contentContainer($container)->all() as $entry) {
             $entry->delete();
         }
     }
