@@ -7,7 +7,7 @@ use DateInterval;
 use Yii;
 use yii\base\Exception;
 use humhub\libs\DbDateValidator;
-use humhub\modules\content\modeles\Content;
+use humhub\modules\content\models\Content;
 use humhub\modules\content\components\ContentContainerActiveRecord;
 use humhub\modules\content\components\ContentActiveRecord;
 use humhub\modules\calendar\models\CalendarEntryParticipant;
