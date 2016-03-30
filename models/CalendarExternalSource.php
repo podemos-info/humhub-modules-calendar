@@ -48,7 +48,10 @@ class CalendarExternalSource extends \humhub\modules\content\components\ContentA
 
     public function afterDelete()
     {
-        CalendarEntry::deleteAll(["external_source_id"=>$this->id]);
+	//delete events not included in ical file
+	$to_delete = CalendarEntry::find()->where(["external_source_id"=>$this->id])->all();
+	foreach ($to_delete as $event)
+		$event->delete(); 
         parent::afterDelete();
     }
 
@@ -135,7 +138,9 @@ class CalendarExternalSource extends \humhub\modules\content\components\ContentA
 		$this->iCalParseTmpFile($tmp_file);
 	}
 	//delete events not included in ical file
-	CalendarEntry::deleteAll(['and', ["external_source_id"=>$this->id], ['not in', 'external_uid', $uids]]);
+	$to_delete = CalendarEntry::find()->where(['and', ["external_source_id"=>$this->id], ['not in', 'external_uid', $uids]])->all();
+	foreach ($to_delete as $event)
+		$event->delete(); 
     }
 
     private function iCalParseTmpFile($path){
