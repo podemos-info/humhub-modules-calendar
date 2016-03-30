@@ -460,4 +460,11 @@ class CalendarEntry extends ContentActiveRecord implements \humhub\modules\searc
         );
     }
 
+    public function canDelete($userId="") {
+        return !$this->external_source_id;
+    }
+
+    public function canWrite($userId="") {
+        return !$this->external_source_id;
+    }
 }
