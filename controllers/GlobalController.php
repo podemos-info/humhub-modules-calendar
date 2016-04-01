@@ -8,6 +8,7 @@ use humhub\components\Controller;
 use humhub\modules\calendar\models\CalendarEntry;
 use yii\web\HttpException;
 use humhub\modules\content\components\ActiveQueryContent;
+use humhub\modules\space\models\Membership;
 
 /**
  * GlobalController provides a global view.
@@ -48,9 +49,12 @@ class GlobalController extends Controller
             $filters = array();
         }
 
+        $spaces = Membership::GetUserSpaces();
+
         return $this->render('index', array(
                     'selectors' => $selectors,
                     'filters' => $filters,
+                    'spaces' => $spaces,
                     'user' => Yii::$app->user->getIdentity()
         ));
     }
