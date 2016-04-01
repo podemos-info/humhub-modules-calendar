@@ -27,6 +27,21 @@ use yii\helpers\Url;
         </div>
         <div class="col-md-2">
             <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong><?php echo Yii::t('CalendarModule.views_global_index', 'My spaces'); ?></strong>
+                </div>
+		<?php if ($spaces) {?>
+                <div class="panel-body">
+		    <?php foreach ($spaces as $space) {?>
+                    <div class="checkbox">
+                        <label><div class="fc-event" style="<?php if ($space->color) echo "background-color:{$space->color};" ?>width:18px;height:18px;border-radius: 3px;display:inline-block;vertical-align:bottom"></div>&nbsp;
+                        <?php echo $space->name ?></label>
+                    </div>
+                    <?php } ?>
+                </div>
+		<?php } ?>
+            </div>
+            <div class="panel panel-default">
 
                 <div class="panel-heading">
                     <?php echo Yii::t('CalendarModule.views_global_index', '<strong>Select</strong> calendars'); ?>
@@ -98,21 +113,6 @@ use yii\helpers\Url;
                         </label>
                     </div>
                 </div>
-            </div>
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <strong><?php echo Yii::t('CalendarModule.views_global_index', 'My spaces'); ?></strong>
-                </div>
-		<?php if ($spaces) {?>
-                <div class="panel-body">
-		    <?php foreach ($spaces as $space) {?>
-                    <div class="checkbox">
-                        <label><div class="fc-event" style="<?php if ($space->color) echo "background-color:{$space->color};" ?>width:18px;height:18px;border-radius: 3px;display:inline-block;vertical-align:bottom"></div>&nbsp;
-                        <?php echo $space->name ?></label>
-                    </div>
-                    <?php } ?>
-                </div>
-		<?php } ?>
             </div>
         </div>
 
