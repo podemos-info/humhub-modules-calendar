@@ -6,6 +6,7 @@ use Yii;
 use yii\helpers\Json;
 use humhub\components\Controller;
 use humhub\modules\calendar\models\CalendarEntry;
+use humhub\modules\calendar\models\CalendarExternalSource;
 use yii\web\HttpException;
 use humhub\modules\content\components\ActiveQueryContent;
 use humhub\modules\space\models\Membership;
@@ -50,11 +51,13 @@ class GlobalController extends Controller
         }
 
         $spaces = Membership::GetUserSpaces();
+        $external_sources = CalendarExternalSource::find()->contentContainer(Yii::$app->user->getIdentity())->all();
 
         return $this->render('index', array(
                     'selectors' => $selectors,
                     'filters' => $filters,
                     'spaces' => $spaces,
+                    'external_sources' => $external_sources,
                     'user' => Yii::$app->user->getIdentity()
         ));
     }

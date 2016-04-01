@@ -26,11 +26,11 @@ use yii\helpers\Url;
 
         </div>
         <div class="col-md-2">
+            <?php if ($spaces) {?>
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <strong><?php echo Yii::t('CalendarModule.views_global_index', 'My spaces'); ?></strong>
+                    <?php echo Yii::t('CalendarModule.views_global_index', '<strong>My</strong> spaces'); ?>
                 </div>
-		<?php if ($spaces) {?>
                 <div class="panel-body">
 		    <?php foreach ($spaces as $space) {?>
                     <div class="checkbox">
@@ -39,8 +39,23 @@ use yii\helpers\Url;
                     </div>
                     <?php } ?>
                 </div>
-		<?php } ?>
             </div>
+            <?php } ?>
+            <?php if ($external_sources) {?>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <?php echo Yii::t('CalendarModule.views_global_index', '<strong>External</strong> calendars'); ?>
+                </div>
+                <div class="panel-body">
+		    <?php foreach ($external_sources as $external_source) {?>
+                    <div class="checkbox">
+                        <label><div class="fc-event" style="<?php if ($external_source->color) echo "background-color:{$external_source->color};" ?>width:18px;height:18px;border-radius: 3px;display:inline-block;vertical-align:bottom"></div>&nbsp;
+                        <?php echo $external_source->name ?></label>
+                    </div>
+                    <?php } ?>
+                </div>
+            </div>
+            <?php } ?>
             <div class="panel panel-default">
 
                 <div class="panel-heading">

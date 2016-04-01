@@ -32,6 +32,7 @@ return [
     'Event not found!' => '¡Evento no encontrado!',
     'ID' => 'ID',
     'Maybe attending users' => 'Usuarios que tal vez asistan',
+    'My calendar' => 'Mi agenda',
     'Participation Mode' => 'Modo de participación',
     'Start Date' => 'Fecha de inicio',
     'There have been no external sources added to this user or space yet.' => 'Aún no existen origenes externos para este usuario o espacio.',

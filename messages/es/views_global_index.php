@@ -10,4 +10,6 @@ return array (
   'My profile' => 'Mi perfil',
   'My spaces' => 'Mis espacios',
   'Not responded yet' => 'No respondido aún',
+  '<strong>My</strong> spaces' => '<strong>Mis</strong> espacios',
+  '<strong>External</strong> calendars' => '<strong>Calendarios</strong> externos',
 );
