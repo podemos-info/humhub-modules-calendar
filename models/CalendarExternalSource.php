@@ -94,17 +94,24 @@ class CalendarExternalSource extends \humhub\modules\content\components\ContentA
 
     public function updateEvents()
     {
+	$updated = false;
         if ($this->source_type==self::SOURCE_TYPE_ICAL)
-            $this->iCalUpdateEvents();
-        $this->last_update = Yii::$app->formatter->asDateTime(new DateTime('-1 minute'), 'php:c'); // avoid date sync with server delay
-        $this->save();
+            $updated = $this->iCalUpdateEvents();
+	if ($updated) {
+	        $this->last_update = Yii::$app->formatter->asDateTime(new DateTime('-1 minute'), 'php:c'); // avoid date sync with server delay
+        	$this->save();
+	}
     }
 
     private function iCalUpdateEvents() {
 	require_once __DIR__."/../libs/iCalcreator.php";
 	
 	//load file into lines array
-	$ical = file($this->url, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+	$ical = @file($this->url, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        if (!$ical) {
+		Yii::error("Can't download calendar from {$this->url}.");
+		return false;
+	}
 	if ($this->last_update)
 		$last_update = strtotime($this->last_update);
 	else
@@ -115,6 +122,10 @@ class CalendarExternalSource extends \humhub\modules\content\components\ContentA
 	$step = 0;
 	$uids = [];
 	foreach ($ical as $num_line => $line) {
+		if ($num_line==0 && $line!="BEGIN:VCALENDAR") {
+			Yii::error("Invalid calendar format from {$this->url}.");
+	                return false;
+		}
 		if (substr_compare($line, "UID:", 0, 4) == 0) {
 			$uids []= substr($line, 4);
 		} elseif ($step<2 && substr_compare($line, "LAST-MODIFIED:", 0, 14) == 0) {
@@ -140,7 +151,8 @@ class CalendarExternalSource extends \humhub\modules\content\components\ContentA
 	//delete events not included in ical file
 	$to_delete = CalendarEntry::find()->where(['and', ["external_source_id"=>$this->id], ['not in', 'external_uid', $uids]])->all();
 	foreach ($to_delete as $event)
-		$event->delete(); 
+		$event->delete();
+	return true;
     }
 
     private function iCalParseTmpFile($path){
@@ -160,12 +172,17 @@ class CalendarExternalSource extends \humhub\modules\content\components\ContentA
 		$dtend = $event->getProperty("dtend");
 		$all_day = !isset($dtstart["hour"]);
 		if ($all_day) {
-			$start_date = date("Y-m-d H:i:s", mktime(0, 0, 0, $dtstart['month'], $dtstart['day'], $dtstart['year']));
+			$st = mktime(0, 0, 0, $dtstart['month'], $dtstart['day'], $dtstart['year']);
+			$start_date = date("Y-m-d H:i:s", $st);
 			$end_date = date("Y-m-d H:i:s", mktime(23, 59, 59, $dtend['month'], $dtend['day']-1, $dtend['year']));
 		} else {
-			$start_date = date('Y-m-d H:i:s', gmmktime($dtstart['hour'], $dtstart['min'], $dtstart['sec'], $dtstart['month'], $dtstart['day'], $dtstart['year']));
+			$st = gmmktime($dtstart['hour'], $dtstart['min'], $dtstart['sec'], $dtstart['month'], $dtstart['day'], $dtstart['year']);
+			$start_date = date('Y-m-d H:i:s', $st);
 			$end_date = date('Y-m-d H:i:s', gmmktime($dtend['hour'], $dtend['min'], $dtend['sec'], $dtend['month'], $dtend['day'], $dtend['year']));
 		}
+
+		if (time()-$st>60*60*24*30*2) continue; // ignore events older than 2 months
+
 		$uid = $event->getProperty("uid"); 
 		$entry = CalendarEntry::findOne(["external_source_id"=>$this->id, "external_uid"=>$uid]);
 		if (!$entry) {
