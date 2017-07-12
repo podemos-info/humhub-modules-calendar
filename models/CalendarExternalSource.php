@@ -167,7 +167,6 @@ class CalendarExternalSource extends ContentActiveRecord
 
     private function iCalParseTmpFile($path){
     	//ContentActiveRecord::findOne(['object_id'=>$this->id, 'object_model'=>])
-    	print_r(var_dump($this->content));exit;
 	$user = $container = $this->content->getContainer();
 	$public = false;
 	if ($container instanceof Space) {
