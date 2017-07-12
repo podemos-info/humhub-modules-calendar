@@ -6,12 +6,12 @@ class m160308_111526_add_colors extends Migration
 {
     public function up()
     {
-        $this->addColumn('calendar_entry', 'color', $this->string()); 
+        //$this->addColumn('calendar_entry', 'color', $this->string()); 
     }
 
     public function down()
     {
-        $this->dropColumn('calendar_entry', 'color'); 
+        //$this->dropColumn('calendar_entry', 'color'); 
     }
 
     /*

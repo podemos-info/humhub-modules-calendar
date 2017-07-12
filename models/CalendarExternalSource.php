@@ -7,6 +7,7 @@ use DateTime;
 use humhub\modules\user\models\User;
 use humhub\modules\space\models\Space;
 use humhub\modules\calendar\models\CalendarEntry;
+use humhub\modules\content\components\ContentActiveRecord;
 use vcalendar;
 
 /**
@@ -21,10 +22,16 @@ use vcalendar;
  * @property string $color
  * @property string $last_update
  */
-class CalendarExternalSource extends \humhub\modules\content\components\ContentActiveRecord
+class CalendarExternalSource extends ContentActiveRecord
 {
     const SOURCE_TYPE_ICAL = 1;
     public $autoAddToWall = false;
+    public $tmp_dir = '';
+    public $autoFollow = false;
+
+    function __construct(){
+        $this->tmp_dir = __DIR__.'/../../../../temps';
+    }
 
     /**
      * @return string the associated database table name
@@ -143,7 +150,10 @@ class CalendarExternalSource extends \humhub\modules\content\components\ContentA
 	
 	//only update entries if there is any recent change
 	if ($last_element_num_line!==-1) {
-		$tmp_file = tempnam(sys_get_temp_dir(), 'ical');
+                if (!is_dir($this->tmp_dir)) {
+                    mkdir($this->tmp_dir, 0777, true);
+                }
+		$tmp_file = tempnam($this->tmp_dir, 'ical');
 		$tmp_ical = implode("\n", array_slice($ical, 0, $last_element_num_line+1))."\nEND:VCALENDAR\n";
 		file_put_contents($tmp_file, $tmp_ical);
 		$this->iCalParseTmpFile($tmp_file);
@@ -156,11 +166,13 @@ class CalendarExternalSource extends \humhub\modules\content\components\ContentA
     }
 
     private function iCalParseTmpFile($path){
-	$user = $container = $this->content->container;
+    	//ContentActiveRecord::findOne(['object_id'=>$this->id, 'object_model'=>])
+    	print_r(var_dump($this->content));exit;
+	$user = $container = $this->content->getContainer();
 	$public = false;
 	if ($container instanceof Space) {
 		$public = $container->getDefaultContentVisibility();
-		$user = User::findOne(['id'=>$this->content->user_id]);
+		$user = $this->content->getUser();
 	}
 	Yii::$app->user->setIdentity($user);
 
@@ -203,5 +215,11 @@ class CalendarExternalSource extends \humhub\modules\content\components\ContentA
 		$entry->validate();
 		$entry->save();
 	}
+        $files = glob($this->tmp_dir.'/*'); 
+        foreach($files as $file){ 
+          if(is_file($file)){
+            unlink($file); 
+          }
+        }
    }
 }

@@ -4,7 +4,8 @@ namespace humhub\modules\calendar;
 
 use Yii;
 use yii\helpers\Url;
-use humhub\modules\calendar\widgets\NextEvents;
+use humhub\modules\calendar\widgets\UpcomingEvents;
+use humhub\modules\calendar\models\ModuleSettings;
 use humhub\modules\calendar\models\CalendarExternalSource;
 
 /**
@@ -17,19 +18,14 @@ class Events extends \yii\base\Object
 
     public static function onTopMenuInit($event)
     {
-        if (Yii::$app->user->isGuest) {
-            return;
-        }
-
-        $user = Yii::$app->user->getIdentity();
-        if ($user->isModuleEnabled('calendar')) {
-            $event->sender->addItem(array(
-                'label' => Yii::t('CalendarModule.base', 'My calendar'),
+        if (ModuleSettings::instance()->showGlobalCalendarItems()) {
+            $event->sender->addItem([
+                'label' => Yii::t('CalendarModule.base', 'Calendar'),
                 'url' => Url::to(['/calendar/global/index']),
                 'icon' => '<i class="fa fa-calendar"></i>',
                 'isActive' => (Yii::$app->controller->module && Yii::$app->controller->module->id == 'calendar' && Yii::$app->controller->id == 'global'),
                 'sortOrder' => 300,
-            ));
+            ]);
         }
     }
 
@@ -37,13 +33,14 @@ class Events extends \yii\base\Object
     {
         $space = $event->sender->space;
         if ($space->isModuleEnabled('calendar')) {
-            $event->sender->addItem(array(
+            $event->sender->addItem([
                 'label' => Yii::t('CalendarModule.base', 'Calendar'),
                 'group' => 'modules',
                 'url' => $space->createUrl('/calendar/view/index'),
                 'icon' => '<i class="fa fa-calendar"></i>',
                 'isActive' => (Yii::$app->controller->module && Yii::$app->controller->module->id == 'calendar'),
-            ));
+            
+            ]);
         }
     }
 
@@ -54,6 +51,7 @@ class Events extends \yii\base\Object
             $event->sender->addItem(array(
                 'label' => Yii::t('CalendarModule.base', 'Calendar'),
                 'url' => $user->createUrl('/calendar/view/index'),
+                'icon' => '<i class="fa fa-calendar"></i>',
                 'isActive' => (Yii::$app->controller->module && Yii::$app->controller->module->id == 'calendar'),
             ));
         }
@@ -66,8 +64,10 @@ class Events extends \yii\base\Object
         }
 
         $space = $event->sender->space;
+        $settigns = ModuleSettings::instance();
+
         if ($space->isModuleEnabled('calendar')) {
-            $event->sender->addWidget(NextEvents::className(), array('contentContainer' => $space), array('sortOrder' => 550));
+            $event->sender->addWidget(UpcomingEvents::className(), ['contentContainer' => $space], ['sortOrder' => $settigns->upcomingEventsSnippetSortOrder]);
         }
     }
 
@@ -76,10 +76,11 @@ class Events extends \yii\base\Object
         if (Yii::$app->user->isGuest) {
             return;
         }
+        
+        $settigns = ModuleSettings::instance();
 
-        $user = Yii::$app->user->getIdentity();
-        if ($user->isModuleEnabled('calendar')) {
-            $event->sender->addWidget(NextEvents::className(), array(), array('sortOrder' => 550));
+        if ($settigns->showUpcomingEventsSnippet()) {
+            $event->sender->addWidget(UpcomingEvents::className(), [], ['sortOrder' => $settigns->upcomingEventsSnippetSortOrder]);
         }
     }
 
@@ -91,12 +92,13 @@ class Events extends \yii\base\Object
 
         $user = $event->sender->user;
         if ($user != null) {
-            if ($user->isModuleEnabled('calendar')) {
-                $event->sender->addWidget(NextEvents::className(), array('contentContainer' => $user), array('sortOrder' => 550));
+            $settigns = ModuleSettings::instance();
+
+            if ($settigns->showUpcomingEventsSnippet()) {
+                $event->sender->addWidget(UpcomingEvents::className(), ['contentContainer' => $user], ['sortOrder' => $settigns->upcomingEventsSnippetSortOrder]);
             }
         }
     }
-
     public static function onHourlyCron($event)
     {
         $controller = $event->sender;
