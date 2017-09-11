@@ -47,7 +47,7 @@ class CalendarExternalSource extends ContentActiveRecord
     public function rules()
     {
         return array(
-            [['last_update', 'state'], 'safe'], // delete en NEW
+            [['last_update'], 'safe'], // delete en NEW
             // [['last_update', 'state'], 'safe'] NEW
             array(['name', 'url', 'color'], 'safe'),
             array(['source_type', 'name', 'url'], 'required'),
