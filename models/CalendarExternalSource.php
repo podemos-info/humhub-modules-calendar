@@ -47,7 +47,8 @@ class CalendarExternalSource extends ContentActiveRecord
     public function rules()
     {
         return array(
-            [['last_update'], 'safe'],
+            [['last_update', 'state'], 'safe'], // delete en NEW
+            // [['last_update', 'state'], 'safe'] NEW
             array(['name', 'url', 'color'], 'safe'),
             array(['source_type', 'name', 'url'], 'required'),
         );
@@ -83,12 +84,13 @@ class CalendarExternalSource extends ContentActiveRecord
     public function attributeLabels()
     {
         return array(
-            'id' => 'ID',
-            'source_type' => Yii::t('CalendarModule.base', 'Source Type'),
-            'name' => Yii::t('CalendarModule.base', 'Name'),
-            'url' => Yii::t('CalendarModule.base', 'URL'),
-            'color' => Yii::t('CalendarModule.base', 'Color'),
-            'last_update' => Yii::t('CalendarModule.base', 'Last Update')
+            'id' 			=> 'ID',
+            'source_type' 	=> Yii::t('CalendarModule.base', 'Source Type'),
+            'name' 			=> Yii::t('CalendarModule.base', 'Name'),
+            'url' 			=> Yii::t('CalendarModule.base', 'URL'),
+            'color' 		=> Yii::t('CalendarModule.base', 'Color'),
+            'last_update' 	=> Yii::t('CalendarModule.base', 'Last Update')
+            //'estado'    	=> Yii::t('CalendarModule.base', 'State') NEW
         );
     }
 
@@ -101,13 +103,15 @@ class CalendarExternalSource extends ContentActiveRecord
 
     public function updateEvents()
     {
-	$updated = false;
-        if ($this->source_type==self::SOURCE_TYPE_ICAL)
-            $updated = $this->iCalUpdateEvents();
-	if ($updated) {
+		$updated = false;
+	    if ($this->source_type==self::SOURCE_TYPE_ICAL){
+	    	$updated = $this->iCalUpdateEvents();
+	    }
+	   
+		if ($updated) {
 	        $this->last_update = Yii::$app->formatter->asDateTime(new DateTime('-1 minute'), 'php:c'); // avoid date sync with server delay
         	$this->save();
-	}
+		}
     }
 
     private function iCalUpdateEvents() {
@@ -116,8 +120,12 @@ class CalendarExternalSource extends ContentActiveRecord
 	//load file into lines array
 	$ical = @file($this->url, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         if (!$ical) {
-		Yii::error("Can't download calendar from {$this->url}.");
-		return false;
+		Yii::error("Can't download calendar from {$this->url}."); //delete in new
+		return false; // delete in new
+		// PSEUDOCODE in NEW
+		// SET STATE TO WRONG
+		// SEND NOTIFICATIÓN TO USER WITH URL TO MODIFY ENTRY
+		// SKIP NEXT OPERATIONS RETURN FALSE
 	}
 	if ($this->last_update)
 		$last_update = strtotime($this->last_update);
