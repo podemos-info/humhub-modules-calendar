@@ -2,7 +2,7 @@
 
 use yii\db\Migration;
 
-class m170911_161347_external_calendar_extatus extends Migration
+class m170911_161347_external_calendar_estatus extends Migration
 {
 
     public function safeDown()
