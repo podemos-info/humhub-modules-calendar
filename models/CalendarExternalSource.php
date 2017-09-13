@@ -8,6 +8,7 @@ use humhub\modules\user\models\User;
 use humhub\modules\space\models\Space;
 use humhub\modules\calendar\models\CalendarEntry;
 use humhub\modules\content\components\ContentActiveRecord;
+use humhub\modules\calendar\notifications\InvalidExternalSourceNotification;
 use vcalendar;
 
 /**
@@ -47,10 +48,9 @@ class CalendarExternalSource extends ContentActiveRecord
     public function rules()
     {
         return array(
-            [['last_update'], 'safe'], // delete en NEW
-            // [['last_update', 'state'], 'safe'] NEW
+            [['last_update', 'valid'], 'safe'],
             array(['name', 'url', 'color'], 'safe'),
-            array(['source_type', 'name', 'url'], 'required'),
+            array(['source_type', 'name', 'url'], 'required')
         );
     }
 
@@ -89,8 +89,8 @@ class CalendarExternalSource extends ContentActiveRecord
             'name' 			=> Yii::t('CalendarModule.base', 'Name'),
             'url' 			=> Yii::t('CalendarModule.base', 'URL'),
             'color' 		=> Yii::t('CalendarModule.base', 'Color'),
-            'last_update' 	=> Yii::t('CalendarModule.base', 'Last Update')
-            //'estado'    	=> Yii::t('CalendarModule.base', 'State') NEW
+            'last_update' 	=> Yii::t('CalendarModule.base', 'Last Update'),
+            'valid'    		=> Yii::t('CalendarModule.base', 'Valid')
         );
     }
 
@@ -119,13 +119,16 @@ class CalendarExternalSource extends ContentActiveRecord
 	
 	//load file into lines array
 	$ical = @file($this->url, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-        if (!$ical) {
-		Yii::error("Can't download calendar from {$this->url}."); //delete in new
-		return false; // delete in new
+    if (!$ical) {
+		
 		// PSEUDOCODE in NEW
-		// SET STATE TO WRONG
-		// SEND NOTIFICATIÓN TO USER WITH URL TO MODIFY ENTRY
-		// SKIP NEXT OPERATIONS RETURN FALSE
+		$entry = $this->findOne(["id"=>$this->id]);
+		$entry->valid = 0;
+		$entry->validate();
+		$entry->save();
+		InvalidExternalSourceNotification::instance()->about($this)->send($this->content->getUser());
+		Yii::error("Can't download calendar from {$this->url}.");
+		return false;
 	}
 	if ($this->last_update)
 		$last_update = strtotime($this->last_update);

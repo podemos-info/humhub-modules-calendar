@@ -16,7 +16,7 @@ class m170911_161347_external_calendar_extatus extends Migration
     // Use up()/down() to run migration code without a transaction.
     public function up()
     {
-        $this->addColumn('calendar_external_source', 'status', $this->boolean()->defaultValue(0)); 
+        $this->addColumn('calendar_external_source', 'valid', $this->boolean()->defaultValue(1)); 
     }
     /*
     public function down()
