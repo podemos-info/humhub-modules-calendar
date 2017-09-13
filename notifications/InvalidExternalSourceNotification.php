@@ -21,6 +21,6 @@ class InvalidExternalSourceNotification extends BaseNotification
      */
     public function html()
     {
-        return "You have at least one wrong external calendar. Please correct and <a style='color:blue' href='/u/".Html::encode($this->source->content->getUser()->username)."/calendar/external-source/edit?external_source_id='".Html::encode($this->source->id).">review it</a>";
+        return "You have at least one wrong external calendar. Please correct and <a style='color:blue' href='/u/".$this->source->content->getUser()->username."/calendar/external-source/edit?external_source_id=".$this->source->id."'>review it</a>";
     }
 }

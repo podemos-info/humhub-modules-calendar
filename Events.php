@@ -103,7 +103,7 @@ class Events extends \yii\base\Object
     {
         $controller = $event->sender;
         $controller->stdout("Sync external events... ");
-        $sources = CalendarExternalSource::find()->orderBy('last_update')->limit(20);
+        $sources = CalendarExternalSource::find()->orderBy('last_update')->where(array('valid' => 1))->limit(20);
         foreach ($sources->each() as $source) {
             $source->updateEvents();
         }

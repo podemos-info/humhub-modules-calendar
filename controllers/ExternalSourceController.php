@@ -59,7 +59,7 @@ class ExternalSourceController extends ContentContainerController
             $external_source = new CalendarExternalSource;
             $external_source->content->container = $this->contentContainer;
         }
-
+            $external_source->valid = 1;
         if ($external_source->load(Yii::$app->request->post()) && $external_source->validate() && $external_source->save()) {
             $this->redirect($this->contentContainer->createUrl('/calendar/external-source/index'));
         }
