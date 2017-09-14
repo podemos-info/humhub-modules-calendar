@@ -5,6 +5,7 @@ namespace humhub\modules\calendar\notifications;
 use Yii;
 use humhub\libs\Html;
 use humhub\modules\notification\components\BaseNotification;
+use humhub\modules\space\models\Space;
 
 /**
  * Notifies a user about something happend
@@ -21,6 +22,12 @@ class InvalidExternalSourceNotification extends BaseNotification
      */
     public function html()
     {
-        return "You have at least one wrong external calendar. Please correct and <a style='color:blue' href='/u/".$this->source->content->getUser()->username."/calendar/external-source/edit?external_source_id=".$this->source->id."'>review it</a>";
+        $container = $this->source->content->getContainer();
+        if ($container instanceof Space) {
+            $containerURL = "/s/".$container->url;
+        } else {
+            $containerURL = "/u/".$container->url;
+        }
+        return "You have at least one wrong external calendar. Please correct and <a style='color:blue' href='".$containerURL."/calendar/external-source/edit?external_source_id=".$this->source->id."'>review it</a>";
     }
 }
