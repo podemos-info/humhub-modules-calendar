@@ -26,7 +26,7 @@ use vcalendar;
 class CalendarExternalSource extends ContentActiveRecord
 {
     const SOURCE_TYPE_ICAL = 1;
-    public $autoAddToWall = false;
+    public $streamChannel = null;
     public $tmp_dir = '';
     public $autoFollow = false;
 
@@ -75,7 +75,7 @@ class CalendarExternalSource extends ContentActiveRecord
     
     public function getContentDescription()
     {
-        return $this->title;
+        return $this->name;
     }    
 
     /**
@@ -107,7 +107,6 @@ class CalendarExternalSource extends ContentActiveRecord
 	    if ($this->source_type==self::SOURCE_TYPE_ICAL){
 	    	$updated = $this->iCalUpdateEvents();
 	    }
-	   
 		if ($updated) {
 	        $this->last_update = Yii::$app->formatter->asDateTime(new DateTime('-1 minute'), 'php:c'); // avoid date sync with server delay
         	$this->save();
@@ -115,116 +114,121 @@ class CalendarExternalSource extends ContentActiveRecord
     }
 
     private function iCalUpdateEvents() {
-	require_once __DIR__."/../libs/iCalcreator.php";
+		require_once __DIR__."/../libs/iCalcreator.php";
 	
-	//load file into lines array
-	$ical = @file($this->url, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    if (!$ical) {
+		//load file into lines array
+		$ical = @file($this->url, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+	    if (!$ical) {
+			$entry = $this->findOne(["id"=>$this->id]);
+			$entry->valid = 0;
+			$entry->validate();
+			$entry->save();
+			InvalidExternalSourceNotification::instance()->about($this)->send($this->content->getUser());
+			Yii::error("Can't download calendar from {$this->url}.");
+			return false;
+		}
+		if ($this->last_update){
+			$last_update = strtotime($this->last_update);
+		}else{
+			$last_update = 0;
+		}
 		
-		// PSEUDOCODE in NEW
-		$entry = $this->findOne(["id"=>$this->id]);
-		$entry->valid = 0;
-		$entry->validate();
-		$entry->save();
-		InvalidExternalSourceNotification::instance()->about($this)->send($this->content->getUser());
-		Yii::error("Can't download calendar from {$this->url}.");
-		return false;
-	}
-	if ($this->last_update)
-		$last_update = strtotime($this->last_update);
-	else
-		$last_update = 0;
-	
-	//browse lines array to update only last modified events and retrieve all event uids 
-	$last_element_num_line = -1;
-	$step = 0;
-	$uids = [];
-	foreach ($ical as $num_line => $line) {
-		if ($num_line==0 && $line!="BEGIN:VCALENDAR") {
-			Yii::error("Invalid calendar format from {$this->url}.");
-	                return false;
+		//browse lines array to update only last modified events and retrieve all event uids 
+		$last_element_num_line = -1;
+		$step = 0;
+		$uids = [];
+		foreach ($ical as $num_line => $line) {
+			if ($num_line==0 && $line!="BEGIN:VCALENDAR") {
+				Yii::error("Invalid calendar format from {$this->url}.");
+		                return false;
+			}
+			if (substr_compare($line, "UID:", 0, 4) == 0) {
+				$uids []= substr($line, 4);
+			} elseif ($step<2 && substr_compare($line, "LAST-MODIFIED:", 0, 14) == 0) {
+				$event_last_modified = strtotime(substr($line, 14));
+				if ($last_update>=$event_last_modified){
+					$step = $step==0 ? 3 : 2;
+				}else{
+					$step = 1;
+				}
+			} elseif ($step<3 && substr_compare($line, "END:", 0, 4) == 0) {
+				if ($line !== "END:VCALENDAR") {
+					$last_element_num_line = $num_line;
+				}
+				if ($step>1) {
+					$step = 3;
+				}
+			}
 		}
-		if (substr_compare($line, "UID:", 0, 4) == 0) {
-			$uids []= substr($line, 4);
-		} elseif ($step<2 && substr_compare($line, "LAST-MODIFIED:", 0, 14) == 0) {
-			$event_last_modified = strtotime(substr($line, 14));
-			if ($last_update>=$event_last_modified)
-				$step = $step==0 ? 3 : 2;
-			else
-				$step = 1;
-			
-		} elseif ($step<3 && substr_compare($line, "END:", 0, 4) == 0) {
-			if ($line !== "END:VCALENDAR") $last_element_num_line = $num_line;
-			if ($step>1) $step = 3;
+		//only update entries if there is any recent change
+		if ($last_element_num_line!==-1) {
+            if (!is_dir($this->tmp_dir)) {
+                mkdir($this->tmp_dir, 0777, true);
+            }
+			$tmp_file = tempnam($this->tmp_dir, 'ical');
+			$tmp_ical = implode("\n", array_slice($ical, 0, $last_element_num_line+1))."\nEND:VCALENDAR\n";
+			file_put_contents($tmp_file, $tmp_ical);
+			$this->iCalParseTmpFile($tmp_file);
 		}
+		//delete events not included in ical file
+		$to_delete = CalendarEntry::find()->where(['and', ["external_source_id"=>$this->id], ['not in', 'external_uid', $uids]])->all();
+		foreach ($to_delete as $event){
+			$event->delete();
+		}
+		return true;
 	}
-	
-	//only update entries if there is any recent change
-	if ($last_element_num_line!==-1) {
-                if (!is_dir($this->tmp_dir)) {
-                    mkdir($this->tmp_dir, 0777, true);
-                }
-		$tmp_file = tempnam($this->tmp_dir, 'ical');
-		$tmp_ical = implode("\n", array_slice($ical, 0, $last_element_num_line+1))."\nEND:VCALENDAR\n";
-		file_put_contents($tmp_file, $tmp_ical);
-		$this->iCalParseTmpFile($tmp_file);
-	}
-	//delete events not included in ical file
-	$to_delete = CalendarEntry::find()->where(['and', ["external_source_id"=>$this->id], ['not in', 'external_uid', $uids]])->all();
-	foreach ($to_delete as $event)
-		$event->delete();
-	return true;
-    }
 
-    private function iCalParseTmpFile($path){
-    	//ContentActiveRecord::findOne(['object_id'=>$this->id, 'object_model'=>])
-	$user = $container = $this->content->getContainer();
-	$public = false;
-	if ($container instanceof Space) {
-		$public = $container->getDefaultContentVisibility();
-		$user = $this->content->getUser();
-	}
-	Yii::$app->user->setIdentity($user);
+	private function iCalParseTmpFile($path){
+		$user = $container = $this->content->getContainer();
+		$public = false;
+		if ($container instanceof Space) {
+			$public = $container->getDefaultContentVisibility();
+			$user = $this->content->getUser();
+		}
+		Yii::$app->user->setIdentity($user);
 
-	$config = array( "unique_id" => "ical{$this->id}", "filename" => basename($path), "directory"=>dirname($path));
-	$vcalendar = new vcalendar( $config ); 
-	$vcalendar->parse();
+		$config = array( "unique_id" => "ical{$this->id}", "filename" => basename($path), "directory"=>dirname($path));
+		$vcalendar = new vcalendar( $config ); 
+		$vcalendar->parse();
         while( $event = $vcalendar->getComponent('vevent')) {
-		$dtstart = $event->getProperty("dtstart");
-		$dtend = $event->getProperty("dtend");
-		$all_day = !isset($dtstart["hour"]);
-		if ($all_day) {
-			$st = mktime(0, 0, 0, $dtstart['month'], $dtstart['day'], $dtstart['year']);
-			$start_date = date("Y-m-d H:i:s", $st);
-			$end_date = date("Y-m-d H:i:s", mktime(23, 59, 59, $dtend['month'], $dtend['day']-1, $dtend['year']));
-		} else {
-			$st = gmmktime($dtstart['hour'], $dtstart['min'], $dtstart['sec'], $dtstart['month'], $dtstart['day'], $dtstart['year']);
-			$start_date = date('Y-m-d H:i:s', $st);
-			$end_date = date('Y-m-d H:i:s', gmmktime($dtend['hour'], $dtend['min'], $dtend['sec'], $dtend['month'], $dtend['day'], $dtend['year']));
-		}
+			$dtstart = $event->getProperty("dtstart");
+			$dtend = $event->getProperty("dtend");
+			$all_day = !isset($dtstart["hour"]);
+			if ($all_day) {
+				$st = mktime(0, 0, 0, $dtstart['month'], $dtstart['day'], $dtstart['year']);
+				$start_date = date("Y-m-d H:i:s", $st);
+				$end_date = date("Y-m-d H:i:s", mktime(23, 59, 59, $dtend['month'], $dtend['day']-1, $dtend['year']));
+			} else {
+				$st = gmmktime($dtstart['hour'], $dtstart['min'], $dtstart['sec'], $dtstart['month'], $dtstart['day'], $dtstart['year']);
+				$start_date = date('Y-m-d H:i:s', $st);
+				$end_date = date('Y-m-d H:i:s', gmmktime($dtend['hour'], $dtend['min'], $dtend['sec'], $dtend['month'], $dtend['day'], $dtend['year']));
+			}
 
-		if (time()-$st>60*60*24*30*2) continue; // ignore events older than 2 months
+			// ignore events older than 2 months
+			if (time()-$st>60*60*24*30*2) {
+				continue;
+			}
 
-		$uid = $event->getProperty("uid"); 
-		$entry = CalendarEntry::findOne(["external_source_id"=>$this->id, "external_uid"=>$uid]);
-		if (!$entry) {
-			$entry = new CalendarEntry([
-				'participation_mode' => CalendarEntry::PARTICIPATION_MODE_NONE,
-				'color' => $this->color,
-				'external_source_id' => $this->id,
-				'external_uid' => $uid
-			]);
+			$uid = $event->getProperty("uid"); 
+			$entry = CalendarEntry::findOne(["external_source_id"=>$this->id, "external_uid"=>$uid]);
+			if (!$entry) {
+				$entry = new CalendarEntry([
+					'participation_mode' => CalendarEntry::PARTICIPATION_MODE_NONE,
+					'color' => $this->color,
+					'external_source_id' => $this->id,
+					'external_uid' => $uid
+				]);
+			}
+			$entry->content->container = $container;
+			$entry->title = $event->getProperty("summary");
+			$entry->description = $event->getProperty("description");
+			$entry->start_datetime = $start_date;
+			$entry->end_datetime = $end_date;
+			$entry->all_day = $all_day;
+			$entry->is_public = $public;
+			$entry->validate();
+			$entry->save();
 		}
-		$entry->content->container = $container;
-		$entry->title = $event->getProperty("summary");
-		$entry->description = $event->getProperty("description");
-		$entry->start_datetime = $start_date;
-		$entry->end_datetime = $end_date;
-		$entry->all_day = $all_day;
-		$entry->is_public = $public;
-		$entry->validate();
-		$entry->save();
-	}
         $files = glob($this->tmp_dir.'/*'); 
         foreach($files as $file){ 
           if(is_file($file)){
