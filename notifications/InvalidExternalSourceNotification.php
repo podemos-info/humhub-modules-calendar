@@ -24,10 +24,14 @@ class InvalidExternalSourceNotification extends BaseNotification
     {
         $container = $this->source->content->getContainer();
         if ($container instanceof Space) {
-            $containerURL = "/s/".$container->url;
+            $containerURL = "/s/".$container->url."/calendar/external-source/edit?external_source_id=".$this->source->id;
         } else {
-            $containerURL = "/u/".$container->url;
+            $containerURL = "/u/".$container->url."/calendar/external-source/edit?external_source_id=".$this->source->id;
         }
-        return "You have at least one wrong external calendar. Please correct and <a style='color:blue' href='".$containerURL."/calendar/external-source/edit?external_source_id=".$this->source->id."'>review it</a>";
+
+        return Yii::t(
+            'CalendarModule.views_notifications_invalidExternalSource', 
+            'You have one wrong external calendar. Please review and <a style="color:blue" href="{url}">correct it</a>.', ['{url}' => $containerURL]
+            );
     }
 }
