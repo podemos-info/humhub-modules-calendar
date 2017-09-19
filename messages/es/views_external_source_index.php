@@ -19,4 +19,5 @@
 return [
     'Edit External Source' => 'Modificar origen externo',
     'Add External Source' => 'Añadir origen externo',
+    'External Sources' => 'Origenes externos',
 ];

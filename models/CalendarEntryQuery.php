@@ -525,7 +525,7 @@ class CalendarEntryQuery extends \yii\base\Model
      * Returns the actual \yii\db\ActiveQuery instance.
      * If $build is set to true, this method will build the filter query before.
      * 
-     * @param type $build if ture this method will build the filter query before returning
+     * @param bool $build if ture this method will build the filter query before returning
      * @return \yii\db\ActiveQuery
      */
     public function query($build = false)
@@ -627,7 +627,7 @@ class CalendarEntryQuery extends \yii\base\Model
      * Helper function to get the start_datetime query filter.
      * @param DateTime $date
      * @param string $eq
-     * @return type
+     * @return array
      */
     private function getStartCriteria(DateTime $date, $eq = '>=')
     {
@@ -638,7 +638,7 @@ class CalendarEntryQuery extends \yii\base\Model
      * Helper function to get the end_datetime query filter.
      * @param DateTime $date
      * @param string $eq
-     * @return type
+     * @return array
      */
     private function getEndCriteria(DateTime $date, $eq = '<=')
     {

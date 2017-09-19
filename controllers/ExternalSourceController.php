@@ -4,12 +4,11 @@ namespace humhub\modules\calendar\controllers;
 
 use Yii;
 use yii\helpers\Json;
-use humhub\modules\content\components\ContentContainerController;
 use humhub\modules\calendar\models\CalendarEntry;
 use yii\web\HttpException;
 use humhub\modules\content\components\ActiveQueryContent;
-use humhub\modules\calendar\models\ModuleSettings;
-use humhub\modules\calendar\models\CalendarExternalSource;
+use humhub\modules\calendar\models\SnippetModuleSettings;
+
 
 /**
  * ExternalSourcesController allow to add external events to a user or space calendar
@@ -17,19 +16,17 @@ use humhub\modules\calendar\models\CalendarExternalSource;
  * @package humhub.modules_core.calendar.controllers
  * @author luke
  */
-class ExternalSourceController extends ContentContainerController
+class ExternalSourceController
 {
-    public function beforeAction($action)
+    public function beforeAction($action, $controller)
     {
-        if (!ModuleSettings::instance()->showGlobalCalendarItems()) {
+        if (!SnippetModuleSettings::instance()->showGlobalCalendarItems()) {
             throw new HttpException('500', 'Calendar module is not enabled for your user!');
-        } else if ($this->contentContainer instanceof User && $this->contentContainer->id != Yii::$app->user->id) {
+        } else if ($controller->contentContainer instanceof User && $controller->contentContainer->id != Yii::$app->user->id) {
             throw new HttpException('500', 'Your user is not allowed to access here!');
-        } else if ($this->contentContainer instanceof Space && !$this->contentContainer->isAdmin(Yii::$app->user->id)) {
+        } else if ($controller->contentContainer instanceof Space && !$controller->contentContainer->isAdmin(Yii::$app->user->id)) {
             throw new HttpException(404, Yii::t('CalendarModule.base', 'You miss the rights to view or modify external sources!'));
         }
-
-        return parent::beforeAction($action);
     }
 
     /**

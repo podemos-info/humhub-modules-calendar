@@ -6,7 +6,7 @@ class m170410_222653_eventColors extends Migration
 {
     public function up()
     {
-        //$this->alterColumn('calendar_entry', 'color', 'varchar(7)');
+        $this->addColumn('calendar_entry', 'color', 'varchar(7)');
     }
 
     public function down()

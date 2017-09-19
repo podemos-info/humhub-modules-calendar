@@ -36,10 +36,15 @@ class CalendarEntryParticipant extends ActiveRecord
      */
     public function rules()
     {
-        return array(
-            array(['calendar_entry_id', 'user_id'], 'required'),
-            array(['calendar_entry_id', 'user_id', 'participation_state'], 'integer'),
-        );
+        return [
+            [['calendar_entry_id', 'user_id'], 'required'],
+            [['calendar_entry_id', 'user_id', 'participation_state'], 'integer'],
+        ];
+    }
+
+    public function showParticipantInfo()
+    {
+        return $this->participation_state != self::PARTICIPATION_STATE_DECLINED;
     }
 
     public function getCalendarEntry()
@@ -57,12 +62,12 @@ class CalendarEntryParticipant extends ActiveRecord
      */
     public function attributeLabels()
     {
-        return array(
+        return [
             'id' => 'ID',
             'calendar_entry_id' => 'Calendar Entry',
             'user_id' => 'User',
             'participation_state' => 'Participation State',
-        );
+        ];
     }
 
     public function beforeDelete()

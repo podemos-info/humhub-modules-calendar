@@ -2,6 +2,9 @@
 
 namespace humhub\modules\calendar\widgets;
 
+use humhub\modules\calendar\CalendarUtils;
+use humhub\modules\calendar\permissions\CreateEntry;
+use humhub\widgets\JsWidget;
 use Yii;
 use yii\helpers\Url;
 
@@ -10,12 +13,12 @@ use yii\helpers\Url;
  *
  * @author luke
  */
-class FullCalendar extends \humhub\widgets\JsWidget
+class FullCalendar extends JsWidget
 {
     public $jsWidget = 'calendar.Calendar';
     public $id = 'calendar';
     public $init = true;
-    public $canWrite = true;
+    public $canWrite = false;
     public $loadUrl;
     public $dropUrl;
     public $editUrl;
@@ -29,6 +32,8 @@ class FullCalendar extends \humhub\widgets\JsWidget
         \humhub\modules\calendar\assets\Assets::register($this->getView());
 
         if(Yii::$app->user->isGuest) {
+            $this->canWrite = false;
+            $this->enabled = false;
             parent::init();
             return;
         }
@@ -55,55 +60,44 @@ class FullCalendar extends \humhub\widgets\JsWidget
             'edit-url' => $this->editUrl,
             'drop-url' => $this->dropUrl,
             'enable-url' => Url::to(['/calendar/global/enable']),
+            'enabled' => $this->enabled,
             'can-write' => $this->canWrite,
+            'can-create' => $this->canCreate(),
             'editable' => $this->canWrite,
             'selectable' => $this->canWrite,
-            'selectHelper' => $this->canWrite,
+            'select-helper' => $this->canWrite,
             'selectors' => $this->selectors,
             'filters' => $this->filters,
-            'timezone' => date_default_timezone_get(),
-            'lang' => Yii::$app->language,
-            'enabled' => $this->enabled
+            'timezone' =>  Yii::$app->formatter->timeZone,
+            'locale' => $this->translateLocale(Yii::$app->formatter->locale),
         ];
     }
 
-    public static function populate($calendarEntry, $timeZone = '')
+    const LOCALE_MAPPING = [
+        'nb-no' => 'nb',
+        'fa-ir' => 'fa',
+    ];
+
+    private function translateLocale($locale)
     {
-        if ($timeZone == '') {
-            $timeZone = Yii::$app->formatter->timeZone;
+        $locale = str_replace('_', '-', $locale);
+        if(array_key_exists($locale, self::LOCALE_MAPPING)) {
+            $locale = self::LOCALE_MAPPING[$locale];
         }
 
-        $start = Yii::$app->request->get('start', Yii::$app->request->post('start'));
-        $end = Yii::$app->request->get('end', Yii::$app->request->post('end'));
-
-        // Get given start & end datetime
-        if($start) {
-            $startTime = new \DateTime($start, new \DateTimeZone($timeZone));
-        }
-
-        if($end) {
-            $endTime = new \DateTime($end, new \DateTimeZone($timeZone));
-        }
-
-        // Remember current (user) timeZone - and switch to system timezone
-        $userTimeZone = Yii::$app->formatter->timeZone;
-        Yii::$app->formatter->timeZone = Yii::$app->timeZone;
-
-        $calendarEntry->start_datetime = Yii::$app->formatter->asDateTime($startTime, 'php:Y-m-d H:i:s');
-        $calendarEntry->start_time = $startTime->format('H:i');
-
-        // Fix FullCalendar EndTime
-        if (\humhub\modules\calendar\Utils::isFullDaySpan($startTime, $endTime, true)) {
-            // In Fullcalendar the EndTime is the moment AFTER the event
-            $oneSecond = new \DateInterval("PT1S");
-            $endTime->sub($oneSecond);
-            $calendarEntry->all_day = 1;
-        }
-
-        $calendarEntry->end_time = $endTime->format('H:i');
-        $calendarEntry->end_datetime = Yii::$app->formatter->asDateTime($endTime, 'php:Y-m-d H:i:s');
-
-        // Switch back to user time zone
-        Yii::$app->formatter->timeZone = $userTimeZone;
+        return $locale;
     }
+
+    private function canCreate()
+    {
+        if($this->contentContainer && !Yii::$app->user->isGuest) {
+            return $this->contentContainer->can(CreateEntry::class);
+        } else if(!Yii::$app->user->isGuest) {
+            return Yii::$app->user->getIdentity()->isCurrentUser();
+        }
+
+        return false;
+    }
+
+
 }

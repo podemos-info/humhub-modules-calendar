@@ -11,7 +11,7 @@ use humhub\modules\calendar\models\CalendarEntry;
 use yii\helpers\Url;
 use yii\web\HttpException;
 use humhub\modules\content\components\ActiveQueryContent;
-use humhub\modules\calendar\models\ModuleSettings;
+use humhub\modules\calendar\models\SnippetModuleSettings;
 
 
 /**
@@ -27,7 +27,7 @@ class GlobalController extends Controller
 
     public function beforeAction($action)
     {
-        if (!ModuleSettings::instance()->showGlobalCalendarItems()) {
+        if (!SnippetModuleSettings::instance()->showGlobalCalendarItems()) {
             throw new HttpException('500', 'Calendar module is not enabled for your user!');
         }
 
@@ -36,9 +36,21 @@ class GlobalController extends Controller
 
     public function actionIndex()
     {
+        if(!Yii::$app->user->isGuest){
+            $configureUrl = Yii::$app->user->getIdentity()->createUrl('/calendar/container-config');
+            $moduleEnabled = Yii::$app->user->getIdentity()->isModuleEnabled('calendar');
+        } else {
+            $moduleEnabled = false;
+            $configureUrl = null;
+        }
+
+
+
         return $this->render('index', [
                     'selectors' => $this->getSelectorSettings(),
                     'filters' => $this->getFilterSettings(),
+                    'canConfigure' => $moduleEnabled,
+                    'configureUrl' => $configureUrl,
                     'editUrl' => Url::to(['/calendar/entry/edit'])
         ]);
     }

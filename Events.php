@@ -5,8 +5,8 @@ namespace humhub\modules\calendar;
 use Yii;
 use yii\helpers\Url;
 use humhub\modules\calendar\widgets\UpcomingEvents;
-use humhub\modules\calendar\models\ModuleSettings;
 use humhub\modules\calendar\models\CalendarExternalSource;
+use humhub\modules\calendar\models\SnippetModuleSettings;
 
 /**
  * Description of CalendarEvents
@@ -18,7 +18,7 @@ class Events extends \yii\base\Object
 
     public static function onTopMenuInit($event)
     {
-        if (ModuleSettings::instance()->showGlobalCalendarItems()) {
+        if (SnippetModuleSettings::instance()->showGlobalCalendarItems()) {
             $event->sender->addItem([
                 'label' => Yii::t('CalendarModule.base', 'Calendar'),
                 'url' => Url::to(['/calendar/global/index']),
@@ -64,10 +64,10 @@ class Events extends \yii\base\Object
         }
 
         $space = $event->sender->space;
-        $settigns = ModuleSettings::instance();
+        $settings = SnippetModuleSettings::instance();
 
         if ($space->isModuleEnabled('calendar')) {
-            $event->sender->addWidget(UpcomingEvents::className(), ['contentContainer' => $space], ['sortOrder' => $settigns->upcomingEventsSnippetSortOrder]);
+            $event->sender->addWidget(UpcomingEvents::className(), ['contentContainer' => $space], ['sortOrder' => $settings->upcomingEventsSnippetSortOrder]);
         }
     }
 
@@ -77,10 +77,10 @@ class Events extends \yii\base\Object
             return;
         }
         
-        $settigns = ModuleSettings::instance();
+        $settings = SnippetModuleSettings::instance();
 
-        if ($settigns->showUpcomingEventsSnippet()) {
-            $event->sender->addWidget(UpcomingEvents::className(), [], ['sortOrder' => $settigns->upcomingEventsSnippetSortOrder]);
+        if ($settings->showUpcomingEventsSnippet()) {
+            $event->sender->addWidget(UpcomingEvents::className(), [], ['sortOrder' => $settings->upcomingEventsSnippetSortOrder]);
         }
     }
 
@@ -92,10 +92,10 @@ class Events extends \yii\base\Object
 
         $user = $event->sender->user;
         if ($user != null) {
-            $settigns = ModuleSettings::instance();
+            $settings = SnippetModuleSettings::instance();
 
-            if ($settigns->showUpcomingEventsSnippet()) {
-                $event->sender->addWidget(UpcomingEvents::className(), ['contentContainer' => $user], ['sortOrder' => $settigns->upcomingEventsSnippetSortOrder]);
+            if ($settings->showUpcomingEventsSnippet()) {
+                $event->sender->addWidget(UpcomingEvents::className(), ['contentContainer' => $user], ['sortOrder' => $settings->upcomingEventsSnippetSortOrder]);
             }
         }
     }
