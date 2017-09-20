@@ -20,4 +20,6 @@ return [
     'Edit External Source' => 'Modificar origen externo',
     'Add External Source' => 'Añadir origen externo',
     'External Sources' => 'Origenes externos',
+    'Here you can manage your external sources.' => 'Aquí puedes gestionar tus calendarios externos',
+    'External sources Configuration' => 'Configuración de calendarios externos',
 ];

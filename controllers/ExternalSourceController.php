@@ -4,11 +4,12 @@ namespace humhub\modules\calendar\controllers;
 
 use Yii;
 use yii\helpers\Json;
+use humhub\modules\content\components\ContentContainerController;
 use humhub\modules\calendar\models\CalendarEntry;
 use yii\web\HttpException;
 use humhub\modules\content\components\ActiveQueryContent;
 use humhub\modules\calendar\models\SnippetModuleSettings;
-
+use humhub\modules\calendar\models\CalendarExternalSource;
 
 /**
  * ExternalSourcesController allow to add external events to a user or space calendar
@@ -16,29 +17,19 @@ use humhub\modules\calendar\models\SnippetModuleSettings;
  * @package humhub.modules_core.calendar.controllers
  * @author luke
  */
-class ExternalSourceController
+class ExternalSourceController extends ContentContainerController
 {
-    public function beforeAction($action, $controller)
+    public function beforeAction($action)
     {
         if (!SnippetModuleSettings::instance()->showGlobalCalendarItems()) {
             throw new HttpException('500', 'Calendar module is not enabled for your user!');
-        } else if ($controller->contentContainer instanceof User && $controller->contentContainer->id != Yii::$app->user->id) {
+        } else if ($this->contentContainer instanceof User && $this->contentContainer->id != Yii::$app->user->id) {
             throw new HttpException('500', 'Your user is not allowed to access here!');
-        } else if ($controller->contentContainer instanceof Space && !$controller->contentContainer->isAdmin(Yii::$app->user->id)) {
+        } else if ($this->contentContainer instanceof Space && !$this->contentContainer->isAdmin(Yii::$app->user->id)) {
             throw new HttpException(404, Yii::t('CalendarModule.base', 'You miss the rights to view or modify external sources!'));
         }
-    }
 
-    /**
-     * Calendar Configuration Action for Admins
-     */
-    public function actionIndex()
-    {
-        $external_sources = CalendarExternalSource::find()->contentContainer($this->contentContainer)->all();
-        return $this->render('index', array(
-                    'contentContainer' => $this->contentContainer,
-                    'external_sources' => $external_sources,
-        ));
+        return parent::beforeAction($action);
     }
     
     /**
@@ -58,7 +49,7 @@ class ExternalSourceController
         }
             $external_source->valid = 1;
         if ($external_source->load(Yii::$app->request->post()) && $external_source->validate() && $external_source->save()) {
-            $this->redirect($this->contentContainer->createUrl('/calendar/external-source/index'));
+            $this->redirect($this->contentContainer->createUrl('/calendar/container-config/sources'));
         }
         return $this->render('edit', array(
                     'external_source' => $external_source,
@@ -81,7 +72,7 @@ class ExternalSourceController
 
         $external_source->delete();
 
-        $this->redirect($this->contentContainer->createUrl('/calendar/external-source/index'));
+        $this->redirect($this->contentContainer->createUrl('/calendar/container-config/sources'));
     }
 
 }

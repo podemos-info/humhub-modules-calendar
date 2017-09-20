@@ -21,12 +21,8 @@ return [
     'Adds an calendar for private or public events to your profile and mainmenu.' => '',
     'Adds an event calendar to this space.' => '',
     'All Day' => '',
-<<<<<<< HEAD
-    'Are you sure you want to delete this event?' => '',
-=======
     'Allow participation state \'decline\'' => '',
     'Allow participation state \'maybe\'' => '',
->>>>>>> upstream/master
     'Attending' => '',
     'Attending users' => '',
     'Calendar' => '',
@@ -45,21 +41,14 @@ return [
     'ID' => '',
     'In order to add events to your profile, you have to enable the calendar module first.' => '',
     'Interested' => '',
-<<<<<<< HEAD
-    'Invited' => '',
-=======
     'Invalid event type id selected.' => '',
     'Invited' => '',
     'Maximum number of participants' => '',
->>>>>>> upstream/master
     'Maybe attending users' => '',
     'Next' => '',
     'Participation Mode' => '',
     'Public' => '',
-<<<<<<< HEAD
-=======
     'Send update notification' => '',
->>>>>>> upstream/master
     'Start Date' => '',
     'Start Time' => '',
     'Time Zone' => '',

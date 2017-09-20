@@ -64,7 +64,6 @@ class ContainerConfigController extends ContentContainerController
 
     public function actionTypes()
     {
-        echo "string";exit;
         $typeDataProvider = new ActiveDataProvider([
             // TODO: replace with findByContainer with includeGlobal
             'query' => CalendarEntryType::find()->andWhere(['or',
@@ -115,28 +114,15 @@ class ContainerConfigController extends ContentContainerController
         return $this->htmlRedirect($this->contentContainer->createUrl('/calendar/container-config/types'));
     }
 
-    public function beforeAction($action)
-    {
-        if (!SnippetModuleSettings::instance()->showGlobalCalendarItems()) {
-            throw new HttpException('500', 'Calendar module is not enabled for your user!');
-        } else if ($this->contentContainer instanceof User && $this->contentContainer->id != Yii::$app->user->id) {
-            throw new HttpException('500', 'Your user is not allowed to access here!');
-        } else if ($this->contentContainer instanceof Space && !$this->contentContainer->isAdmin(Yii::$app->user->id)) {
-            throw new HttpException(404, Yii::t('CalendarModule.base', 'You miss the rights to view or modify external sources!'));
-        }
-
-        ExternalSourceController::beforeAction($action, $this);
-        return parent::beforeAction($action);
-    }
-
     /**
      * Calendar Configuration Action for Admins
      */
-    public function actionSource()
+    public function actionSources()
     {
-        echo "string";exit;
         $external_sources = CalendarExternalSource::find()->contentContainer($this->contentContainer)->all();
-        return $this->render('@calendar/views/external_source/index', array(
+
+        //$typeDataProvider = CalendarExternalSource::find()->contentContainer($this->contentContainer)->all();
+        return $this->render('@calendar/views/common/sourcesConfig', array(
                     'contentContainer' => $this->contentContainer,
                     'external_sources' => $external_sources,
         ));
