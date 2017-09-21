@@ -4,8 +4,6 @@ use humhub\modules\calendar\models\CalendarExternalSource;
 use yii\helpers\Html;
 use humhub\compat\CActiveForm;
 
-$this->registerJsFile('@web/resources/space/colorpicker/js/bootstrap-colorpicker-modified.js', ['position' => \humhub\components\View::POS_END]);
-$this->registerCssFile('@web/resources/space/colorpicker/css/bootstrap-colorpicker.min.css');
 ?>
 
 <div class="panel panel-default">
@@ -50,6 +48,7 @@ $this->registerCssFile('@web/resources/space/colorpicker/css/bootstrap-colorpick
 
         <?php CActiveForm::end(); ?>
     </div>
+    <div class="feedback"></div>
 </div>
 <script type="text/javascript">
     $(document).ready(function(){
@@ -60,5 +59,11 @@ $this->registerCssFile('@web/resources/space/colorpicker/css/bootstrap-colorpick
             component: '.input-group-addon',
             input: '#external-source-color-picker',
         });
+    });
+    $("form button").click(function(e) {
+        e.preventDefault();
+        if(confirm("Tendras que esperar hasta 5 minutos para ver importados los eventos")){
+            $("form").submit();
+        }
     });
 </script>
