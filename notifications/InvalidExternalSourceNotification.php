@@ -34,7 +34,7 @@ class InvalidExternalSourceNotification extends BaseNotification
     {
         return Yii::t(
             'CalendarModule.views_notifications_invalidExternalSource', 
-            'You have one wrong external calendar. Please review and <a style="color:blue" href="{url}">correct it</a>.', ['{url}' => $this->getUrl()]
-            );
+            'You have one wrong external calendar. Please review and correct it.'
+        );
     }
 }
