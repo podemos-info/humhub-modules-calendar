@@ -160,29 +160,6 @@ class EntryController extends ContentContainerController
         throw new HttpException(400, "Could not save! " . print_r($entry->getErrors()));
     }
 
-    public function actionEditAjax()
-    {
-        $this->forcePostRequest();
-
-        $entry = $this->getCalendarEntry(Yii::$app->request->post('id'));
-
-        if (!$entry) {
-            throw new HttpException('404', Yii::t('CalendarModule.base', "Event not found!"));
-        }
-
-        if (!($this->canManageEntries() || $entry->content->canEdit())) {
-            throw new HttpException('403', Yii::t('CalendarModule.base', "You don't have permission to edit this event!"));
-        }
-
-        FullCalendar::populate($entry);
-
-        if ($entry->save()) {
-            return $this->asJson(['success' => true]);
-        }
-
-        throw new HttpException(400, "Could not save! " . print_r($entry->getErrors()));
-    }
-
     public function actionUserList()
     {
         $calendarEntry = $this->getCalendarEntry(Yii::$app->request->get('id'));
