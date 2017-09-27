@@ -29,6 +29,7 @@ class ContainerConfigMenu extends SettingsTabs
      */
     public function init()
     {
+        \humhub\modules\calendar\assets\Assets::register($this->getView());
         $contentContainer = Yii::$app->controller->contentContainer;
 
         $this->items = [

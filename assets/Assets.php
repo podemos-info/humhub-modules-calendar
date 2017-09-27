@@ -21,11 +21,11 @@ class Assets extends AssetBundle
     public $css = [
         'js/fullcalendar/fullcalendar.min.css',
         'css/calendar.css',
-        'css/bootstrap-colopicker.min.css'
+        'js/colorpicker/css/bootstrap-colorpicker.min.css'
         //'fullcalendar/fullcalendar.print.css', // print
     ];
     public $js = [
-        'js/colorpicker/js/bootstrap-colormodified.js',
+        'js/colorpicker/js/bootstrap-colorpicker-modified.js',
         'js/fullcalendar/lib/moment.min.js',
         'js/fullcalendar/fullcalendar.min.js',
         'js/fullcalendar/locale-all.js',

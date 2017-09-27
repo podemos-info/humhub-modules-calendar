@@ -4,6 +4,8 @@ use humhub\modules\calendar\models\CalendarExternalSource;
 use yii\helpers\Html;
 use humhub\compat\CActiveForm;
 
+$this->registerJsFile('@web-static/js/colorpicker/js/bootstrap-colorpicker-modified.js', ['position' => \humhub\components\View::POS_END]);
+$this->registerCssFile('@web-static/js/colorpicker/css/bootstrap-colorpicker.min.css');
 ?>
 
 <div class="panel panel-default">
