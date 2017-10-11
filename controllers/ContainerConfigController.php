@@ -16,13 +16,15 @@
 namespace humhub\modules\calendar\controllers;
 
 
+use Yii;
+use humhub\modules\calendar\interfaces\CalendarService;
 use humhub\modules\admin\permissions\ManageSpaces;
 use humhub\modules\calendar\models\CalendarEntryType;
 use humhub\modules\calendar\permissions\ManageEntry;
-use Yii;
 use humhub\modules\calendar\models\DefaultSettings;
 use humhub\modules\content\components\ContentContainerController;
 use yii\data\ActiveDataProvider;
+use yii\helpers\Url;
 use yii\web\HttpException;
 use humhub\modules\calendar\controllers\ExternalSourceController;
 use humhub\modules\calendar\models\CalendarExternalSource;
@@ -30,8 +32,23 @@ use humhub\modules\calendar\models\SnippetModuleSettings;
 
 class ContainerConfigController extends ContentContainerController
 {
-    public $adminOnly = true;
+    /**
+     * @var CalendarService
+     */
+    protected $calendarService;
 
+    /**
+     * @inheritdoc
+     */
+    public function init()
+    {
+        parent::init();
+        $this->calendarService = $this->module->get(CalendarService::class);
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getAccessRules()
     {
         return [
@@ -171,4 +188,28 @@ class ContainerConfigController extends ContentContainerController
         $this->redirect($this->contentContainer->createUrl('/calendar/external-source/index'));
     }
 
+}
+    public function actionCalendars()
+    {
+        return $this->render('@calendar/views/common/calendarsConfig', [
+            'contentContainer' => $this->contentContainer,
+            'calendars' => $this->calendarService->getCalendarItemTypes($this->contentContainer)
+        ]);
+    }
+
+    public function actionEditCalendars($key)
+    {
+        $item = $this->calendarService->getItemType($key, $this->contentContainer);
+
+        if(!$item) {
+            throw new HttpException(404);
+        }
+
+        if($item->load(Yii::$app->request->post()) && $item->save()) {
+            $this->view->saved();
+            return $this->htmlRedirect($this->contentContainer->createUrl('/calendar/container-config/calendars'));
+        }
+
+        return $this->renderAjax('@calendar/views/common/editTypeModal', ['model' => $item]);
+    }
 }

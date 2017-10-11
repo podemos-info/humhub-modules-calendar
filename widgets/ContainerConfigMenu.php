@@ -15,15 +15,12 @@
 
 namespace humhub\modules\calendar\widgets;
 
-
-use humhub\widgets\SettingsTabs;
 use Yii;
-use humhub\widgets\BaseMenu;
-use yii\helpers\Url;
+use humhub\modules\calendar\interfaces\CalendarService;
+use humhub\widgets\SettingsTabs;
 
 class ContainerConfigMenu extends SettingsTabs
 {
-
     /**
      * @inheritdoc
      */
@@ -31,6 +28,9 @@ class ContainerConfigMenu extends SettingsTabs
     {
         \humhub\modules\calendar\assets\Assets::register($this->getView());
         $contentContainer = Yii::$app->controller->contentContainer;
+
+        /* @var $calendarService CalendarService */
+        $calendarService =  Yii::$app->getModule('calendar')->get(CalendarService::class);
 
         $this->items = [
             [
@@ -49,6 +49,15 @@ class ContainerConfigMenu extends SettingsTabs
                 'active' => $this->isCurrentRoute('calendar', 'container-config', 'sources')
             ]
         ];
+
+        if(!empty($calendarService->getCalendarItemTypes($contentContainer))) {
+            $this->items[] = [
+                'label' => Yii::t('CalendarModule.widgets_GlobalConfigMenu', 'Other Calendars'),
+                'url' => $contentContainer->createUrl('/calendar/container-config/calendars'),
+                'active' => $this->isCurrentRoute('calendar', 'container-config', 'calendars')
+            ];
+        }
+
         parent::init();
     }
 
