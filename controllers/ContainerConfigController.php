@@ -188,7 +188,7 @@ class ContainerConfigController extends ContentContainerController
         $this->redirect($this->contentContainer->createUrl('/calendar/external-source/index'));
     }
 
-}
+
     public function actionCalendars()
     {
         return $this->render('@calendar/views/common/calendarsConfig', [
