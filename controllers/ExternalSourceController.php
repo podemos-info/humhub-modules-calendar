@@ -21,7 +21,7 @@ class ExternalSourceController extends ContentContainerController
 {
     public function beforeAction($action)
     {
-        if (!SnippetModuleSettings::instance()->showGlobalCalendarItems()) {
+        if (!SnippetModuleSettings::instantiate()->showGlobalCalendarItems()) {
             throw new HttpException('500', 'Calendar module is not enabled for your user!');
         } else if ($this->contentContainer instanceof User && $this->contentContainer->id != Yii::$app->user->id) {
             throw new HttpException('500', 'Your user is not allowed to access here!');
