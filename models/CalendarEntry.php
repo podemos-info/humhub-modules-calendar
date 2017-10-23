@@ -81,6 +81,11 @@ class CalendarEntry extends ContentActiveRecord implements Searchable, CalendarI
     public $formatter;
 
     /**
+     * @var array attached files
+     */
+    public $files = [];
+
+    /**
      * Participation Modes
      */
     const PARTICIPATION_MODE_NONE = 0;
@@ -175,6 +180,7 @@ class CalendarEntry extends ContentActiveRecord implements Searchable, CalendarI
     public function rules()
     {
         return [
+            [['files'], 'safe'],
             [['title', 'start_datetime', 'end_datetime'], 'required'],
             ['color', 'string'],
             [['start_datetime'], DbDateValidator::className()],
@@ -238,12 +244,6 @@ class CalendarEntry extends ContentActiveRecord implements Searchable, CalendarI
         }
 
         return parent::beforeSave($insert);
-    }
-
-    public function afterSave($insert, $changedAttributes)
-    {
-        parent::afterSave($insert, $changedAttributes);
-        return;
     }
 
     public function beforeDelete()
@@ -333,11 +333,6 @@ class CalendarEntry extends ContentActiveRecord implements Searchable, CalendarI
             /* @var $query ActiveQuery */
             $query->andWhere(['IN', 'calendar_entry_participant.participation_state', $state]);
         })->all();
-    }
-
-    public function isParticipationAllowed()
-    {
-        return $this->participation_mode != self::PARTICIPATION_MODE_NONE;
     }
 
     public function setParticipant($user, $state = CalendarEntryParticipant::PARTICIPATION_STATE_ACCEPTED)
@@ -448,9 +443,15 @@ class CalendarEntry extends ContentActiveRecord implements Searchable, CalendarI
         return false;
     }
 
+    public function isParticipationAllowed()
+    {
+        return $this->participation_mode != self::PARTICIPATION_MODE_NONE;
+    }
+
     public function checkMaxParticipants()
     {
-        return empty($this->max_participants)
+        // Participants always can change/reset their state
+        return empty($this->max_participants) || $this->isParticipant()
             || ($this->getParticipantCount(CalendarEntryParticipant::PARTICIPATION_STATE_ACCEPTED) < $this->max_participants);
     }
 
