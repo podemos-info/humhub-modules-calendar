@@ -180,7 +180,7 @@ class CalendarExternalSource extends ContentActiveRecord
 
 	private function iCalParseTmpFile($path){
 		$user = $container = $this->content->getContainer();
-		$public = false;
+		$public = 2;
 		if ($container instanceof Space) {
 			$public = $container->getDefaultContentVisibility();
 			$user = $this->content->getUser();
@@ -224,7 +224,11 @@ class CalendarExternalSource extends ContentActiveRecord
 			$entry->description = $event->getProperty("description");
 			$entry->start_datetime = $start_date;
 			$entry->end_datetime = $end_date;
-			$entry->all_day = $all_day;
+			if($all_day){
+			    $entry->all_day = 1;
+			} else {
+			    $entry->all_day = 0;
+			}
 			$entry->is_public = $public;
 			$entry->validate();
 			$entry->save();
