@@ -23,7 +23,7 @@ class InvalidExternalSourceNotification extends BaseNotification
         if ($container instanceof Space) {
             return Url::to(["/s/".$container->url."/calendar/external-source/edit?external_source_id=".$this->source->id]);
         } else {
-            return Url::to(["/u/".$container->url."/calendar/external-source/edit?external_source_id=".$this->source->id]);
+            return Url::to([$container->url."calendar/external-source/edit?external_source_id=".$this->source->id]);
         }
     }
 
