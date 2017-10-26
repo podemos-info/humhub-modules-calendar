@@ -6955,10 +6955,16 @@ DayGrid.mixin({
 				timeHtml = '<span class="fc-time">' + htmlEscape(timeText) + '</span>';
 			}
 		}
-
+		//When you start an ajax request to retrieve a list of events in a month, prevent double scape htmlentities
+		// https://github.com/humhub/humhub-modules-calendar/pull/93
+		var parser = new DOMParser;
+		var dom = parser.parseFromString(
+		    '<!doctype html><body>' + event.title,
+		    'text/html');
+		var title = dom.body.textContent;
 		titleHtml =
 			'<span class="fc-title">' +
-				(htmlEscape(event.title || '') || '&nbsp;') + // we always want one line of height
+				(htmlEscape(title || '') || '&nbsp;') + // we always want one line of height
 			'</span>';
 		
 		return '<a class="' + classes.join(' ') + '"' +
