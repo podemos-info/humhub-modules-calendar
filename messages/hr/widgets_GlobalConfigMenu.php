@@ -17,7 +17,8 @@
  * NOTE: this file must be saved in UTF-8 encoding.
  */
 return [
-    'Defaults' => '',
-    'Event Types' => '',
-    'Snippet' => '',
+    'Other Calendars' => '',
+    'Defaults' => 'Zadano',
+    'Event Types' => 'Vrste događaja',
+    'Snippet' => 'Isječak',
 ];

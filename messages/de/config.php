@@ -1,5 +1,6 @@
 <?php
 return array (
+  '(disabled)' => '(deaktiviert)',
   '(global)' => '(generell)',
   '<strong>Calendar</strong> module configuration' => '<strong>Kalender</strong> Modul-Einstellungen',
   '<strong>Confirm</strong> Deletion' => 'Löschen <strong>bestätigen</strong>',
@@ -12,6 +13,7 @@ return array (
   'Half a year' => 'Ein halbes Jahr',
   'Here you can configure default settings for new calendar events.' => 'Hier kannst du die Standard-Einstellungen für neue Termine bearbeiten.',
   'Here you can configure default settings for new calendar events. These settings can be overwritten on space/profile level.' => 'Hier kannst du die Standard-Einstellungen für neue Termine bearbeiten. Diese können aber noch von den Standard-Einstellungen für einen Space oder ein Profil überschrieben werden.',
+  'Here you can manage calendar types provided by other modules.' => 'Hier können Sie die von anderen Modulen bereitgestellten Kalendertypen verwalten.',
   'Here you can manage your event types.' => 'Hier kannst du deine Kategorien bearbeiten.',
   'If activated, the calendar top menu item and dashboard snippet is only visible for users having the calendar module installed in their profile.' => 'Wenn diese Option aktiviert ist werden der Menüeintrag „Kalender“ und das Widget „Nächste Termine“ nur dann angezeigt, wenn der Benutzer das Kalender-Modul in seinem Profil aktiviert hat.',
   'Interval of upcoming events' => 'Zeitspanne für Termine die als „nächste Termine“ betrachtet werden',
@@ -21,6 +23,7 @@ return array (
   'One week' => 'Eine Woche',
   'One year' => 'Ein Jahr',
   'Only show top menu item and snippet if the module is installed in the users profile' => 'Zeige den Menüeintrag und „Nächste Termine“ nur bei aktiviertem Kalender-Modul im Benutzerprofil',
+  'Other Calendars Configuration' => 'Andere Kalender Konfiguration',
   'Reset' => 'Zurücksetzen',
   'Show snippet' => 'Zeige Widget „Nächste Termine“',
   'Sort order' => 'Sortierung',

@@ -17,7 +17,7 @@
  * NOTE: this file must be saved in UTF-8 encoding.
  */
 return [
-    '<strong>Create</strong> new event type' => '',
-    '<strong>Create</strong> new type' => '',
-    '<strong>Edit</strong> event type' => '',
+    '<strong>Edit</strong> calendar' => '',
+    '<strong>Create</strong> new event type' => '<strong>Crear</strong> nuevo tipo de evento',
+    '<strong>Edit</strong> event type' => '<strong>Editar</strong> tipo de evento',
 ];

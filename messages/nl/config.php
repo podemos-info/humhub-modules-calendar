@@ -1,5 +1,6 @@
 <?php
 return array (
+  '(disabled)' => '(Uitgeschakeld)',
   '(global)' => '(globaal)',
   '<strong>Calendar</strong> module configuration' => '<strong>Agenda</ strong>moduleconfiguratie',
   '<strong>Confirm</strong> Deletion' => '<strong>Bevestig</ strong> verwijderen',
@@ -12,6 +13,7 @@ return array (
   'Half a year' => 'Half jaar',
   'Here you can configure default settings for new calendar events.' => 'Hier kunt u de standaardinstellingen voor nieuwe agendagebeurtenissen configureren.',
   'Here you can configure default settings for new calendar events. These settings can be overwritten on space/profile level.' => 'Hier kunt u de standaardinstellingen voor nieuwe agendagebeurtenissen configureren. Deze instellingen kunnen op het ruimte- / profielniveau overschreven worden.',
+  'Here you can manage calendar types provided by other modules.' => 'Hier kunt u de kalender types beheren die afkomstig zijn van andere modules.',
   'Here you can manage your event types.' => 'Hier kunt u uw gebeurtenistypes beheren.',
   'If activated, the calendar top menu item and dashboard snippet is only visible for users having the calendar module installed in their profile.' => 'Indien geactiveerd, is het bovenste menu-item en het dashboard-fragment in de agenda alleen zichtbaar voor gebruikers die de agendamodule in hun profiel hebben geïnstalleerd.',
   'Interval of upcoming events' => 'Interval van komende gebeurtenissen',
@@ -21,6 +23,7 @@ return array (
   'One week' => 'Een week',
   'One year' => 'Een jaar',
   'Only show top menu item and snippet if the module is installed in the users profile' => 'Toon alleen het bovenste menu-item en het fragment als de module is geïnstalleerd in het gebruikersprofiel',
+  'Other Calendars Configuration' => 'Configuratie van andere agenda\'s',
   'Reset' => 'Opnieuw instellen',
   'Show snippet' => 'Toon fragment',
   'Sort order' => 'Sorteervolgorde',

@@ -6,7 +6,6 @@ use Yii;
 use yii\web\HttpException;
 use humhub\modules\calendar\models\DefaultSettings;
 use humhub\modules\calendar\models\forms\CalendarEntryForm;
-use humhub\modules\calendar\notifications\CanceledEventNotification;
 use humhub\modules\calendar\permissions\ManageEntry;
 use humhub\modules\stream\actions\Stream;
 use humhub\widgets\ModalClose;
@@ -57,6 +56,12 @@ class EntryController extends ContentContainerController
         ]);
     }
 
+    /**
+     * @param $id
+     * @param $type
+     * @return \yii\web\Response
+     * @throws HttpException
+     */
     public function actionRespond($id, $type)
     {
         $calendarEntry = $this->getCalendarEntry($id);
@@ -65,24 +70,10 @@ class EntryController extends ContentContainerController
             throw new HttpException('404');
         }
 
-        if ($calendarEntry->canRespond()) {
-            $calendarEntryParticipant = $calendarEntry->findParticipant(Yii::$app->user->getIdentity());
-
-            if ($calendarEntryParticipant == null) {
-                $calendarEntryParticipant = new CalendarEntryParticipant([
-                    'user_id' => Yii::$app->user->id,
-                    'calendar_entry_id' => $calendarEntry->id]);
-            }
-
-            // Either current state or set new state
-            if($calendarEntryParticipant->participation_state == (int) $type) {
-                $calendarEntryParticipant->delete();
-            } else {
-                $calendarEntryParticipant->participation_state = (int) $type;
-                $calendarEntryParticipant->save();
-            }
+        $participationState = $calendarEntry->respond((int)$type);
+        if($participationState->hasErrors()) {
+            return $this->asJson(['success' => false, 'errors' => $participationState->getErrors()]);
         }
-
         return $this->asJson(['success' => true]);
     }
 
@@ -237,5 +228,12 @@ class EntryController extends ContentContainerController
     private function canManageEntries()
     {
         return $this->contentContainer->permissionManager->can(new ManageEntry);
+    }
+
+    public function actionGenerateics()
+    {
+        $calendarEntry = $this->getCalendarEntry(Yii::$app->request->get('id'));
+        $ics = $calendarEntry->generateIcs();
+        return Yii::$app->response->sendContentAsFile($ics, uniqid() . '.ics', ['mimeType' => 'text/calendar']);
     }
 }

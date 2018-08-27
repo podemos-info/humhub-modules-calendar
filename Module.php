@@ -2,6 +2,7 @@
 
 namespace humhub\modules\calendar;
 
+use humhub\modules\calendar\models\CalendarEntryType;
 use Yii;
 use yii\helpers\Url;
 use humhub\modules\calendar\interfaces\CalendarService;
@@ -35,8 +36,8 @@ class Module extends ContentContainerModule
     public function getContentContainerTypes()
     {
         return [
-            Space::className(),
-            User::className(),
+            Space::class,
+            User::class,
         ];
     }
 
@@ -51,6 +52,8 @@ class Module extends ContentContainerModule
         foreach (CalendarExternalSource::find()->all() as $entry) {
             $entry->delete();
         }
+
+        CalendarEntryType::deleteByModule();
         parent::disable();
     }
 
@@ -66,6 +69,8 @@ class Module extends ContentContainerModule
         foreach (CalendarExternalSource::find()->contentContainer($container)->all() as $entry) {
             $entry->delete();
         }
+
+        CalendarEntryType::deleteByModule($container);
     }
 
     /**
@@ -84,7 +89,7 @@ class Module extends ContentContainerModule
         if ($container instanceof Space) {
             return Yii::t('CalendarModule.base', 'Adds an event calendar to this space.');
         } elseif ($container instanceof User) {
-            return Yii::t('CalendarModule.base', 'Adds an calendar for private or public events to your profile and mainmenu.');
+            return Yii::t('CalendarModule.base', 'Adds a calendar for private or public events to your profile and main menu.');
         }
     }
 

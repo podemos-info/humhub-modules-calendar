@@ -2,19 +2,40 @@
 
 namespace humhub\modules\calendar;
 
+use humhub\modules\calendar\integration\BirthdayCalendar;
+use humhub\modules\calendar\models\CalendarEntry;
+use humhub\modules\calendar\models\SnippetModuleSettings;
+use humhub\modules\calendar\widgets\DownloadIcsLink;
+use humhub\modules\calendar\widgets\UpcomingEvents;
 use Yii;
 use yii\helpers\Url;
-use humhub\modules\calendar\widgets\UpcomingEvents;
 use humhub\modules\calendar\models\CalendarExternalSource;
-use humhub\modules\calendar\models\SnippetModuleSettings;
+
 
 /**
  * Description of CalendarEvents
  *
  * @author luke
  */
-class Events extends \yii\base\Object
+class Events
 {
+
+    /**
+     * @param $event \humhub\modules\calendar\interfaces\CalendarItemTypesEvent
+     * @return mixed
+     */
+    public static function onGetCalendarItemTypes($event)
+    {
+        BirthdayCalendar::addItemTypes($event);
+    }
+
+    /**
+     * @param $event \humhub\modules\calendar\interfaces\CalendarItemsEvent;
+     */
+    public static function onFindCalendarItems($event)
+    {
+        BirthdayCalendar::addItems($event);
+    }
 
     public static function onTopMenuInit($event)
     {
@@ -39,7 +60,7 @@ class Events extends \yii\base\Object
                 'url' => $space->createUrl('/calendar/view/index'),
                 'icon' => '<i class="fa fa-calendar"></i>',
                 'isActive' => (Yii::$app->controller->module && Yii::$app->controller->module->id == 'calendar'),
-            
+
             ]);
         }
     }
@@ -59,28 +80,22 @@ class Events extends \yii\base\Object
 
     public static function onSpaceSidebarInit($event)
     {
-        if (Yii::$app->user->isGuest) {
-            return;
-        }
-
         $space = $event->sender->space;
         $settings = SnippetModuleSettings::instantiate();
 
         if ($space->isModuleEnabled('calendar')) {
-            $event->sender->addWidget(UpcomingEvents::className(), ['contentContainer' => $space], ['sortOrder' => $settings->upcomingEventsSnippetSortOrder]);
+            if ($settings->showUpcomingEventsSnippet()) {
+                $event->sender->addWidget(UpcomingEvents::class, ['contentContainer' => $space], ['sortOrder' => $settings->upcomingEventsSnippetSortOrder]);
+            }
         }
     }
 
     public static function onDashboardSidebarInit($event)
     {
-        if (Yii::$app->user->isGuest) {
-            return;
-        }
-
         $settings = SnippetModuleSettings::instantiate();
 
         if ($settings->showUpcomingEventsSnippet()) {
-            $event->sender->addWidget(UpcomingEvents::className(), [], ['sortOrder' => $settings->upcomingEventsSnippetSortOrder]);
+            $event->sender->addWidget(UpcomingEvents::class, [], ['sortOrder' => $settings->upcomingEventsSnippetSortOrder]);
         }
     }
 
@@ -95,7 +110,7 @@ class Events extends \yii\base\Object
             $settings = SnippetModuleSettings::instantiate();
 
             if ($settings->showUpcomingEventsSnippet()) {
-                $event->sender->addWidget(UpcomingEvents::className(), ['contentContainer' => $user], ['sortOrder' => $settings->upcomingEventsSnippetSortOrder]);
+                $event->sender->addWidget(UpcomingEvents::class, ['contentContainer' => $user], ['sortOrder' => $settings->upcomingEventsSnippetSortOrder]);
             }
         }
     }
@@ -109,4 +124,12 @@ class Events extends \yii\base\Object
         }
         $controller->stdout('done.' . PHP_EOL, \yii\helpers\Console::FG_GREEN);
     }
+
+    public static function onWallEntryLinks($event)
+    {
+        if ($event->sender->object instanceof CalendarEntry) {
+            $event->sender->addWidget(DownloadIcsLink::class, ['calendarEntry' => $event->sender->object]);
+        }
+    }
+
 }

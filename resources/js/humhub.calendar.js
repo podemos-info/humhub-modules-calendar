@@ -7,7 +7,9 @@
 humhub.module('calendar', function (module, require, $) {
     var Widget = require('ui.widget').Widget;
     var client = require('client');
-    var object = require('util').object;
+    var util = require('util');
+    var object = util.object;
+    var string = util.string;
     var loader = require('ui.loader');
     var modal = require('ui.modal');
     var action = require('action');
@@ -106,15 +108,25 @@ humhub.module('calendar', function (module, require, $) {
             canCreate: true,
             selectable: true,
             select: $.proxy(this.select, this),
-            eventResize: $.proxy(this.resizeEvent, this),
-            eventDrop: $.proxy(this.dropEvent, this),
-            eventClick: $.proxy(this.clickEvent, this),
             eventAllow: function() {
                 return true;
             },
             jsonFormat: "YYYY-MM-DD HH:mm:ss",
             loading: $.proxy(this.loader, this),
+            eventResize: $.proxy(this.resizeEvent, this),
+            eventDrop: $.proxy(this.dropEvent, this),
+            eventClick: $.proxy(this.clickEvent, this),
+            eventRender: $.proxy(this.renderEvent, this),
         };
+    };
+
+    Calendar.prototype.renderEvent = function(event, element) {
+        element.attr({title: element.text()});
+        if(event.icon) {
+            if(string.startsWith(event.icon, 'fa-')) {
+                element.find('.fc-content').prepend($('<i class="fa '+event.icon+'"></i>'));
+            }
+        }
     };
 
     Calendar.prototype.select = function (start, end) {
@@ -203,6 +215,11 @@ humhub.module('calendar', function (module, require, $) {
     };
 
     Calendar.prototype.clickEvent = function (event, delta, revertFunc) {
+
+        if(!event.viewUrl) {
+            return;
+        }
+
         var that = this;
         if(!event.viewMode || event.viewMode === 'modal') {
             modal.global.load(event.viewUrl).then(function() {
@@ -211,8 +228,8 @@ humhub.module('calendar', function (module, require, $) {
                     that.fetch();
                 });
             });
-
-
+        } else if(event.viewMode === 'redirect') {
+            client.pjax.redirect(event.viewUrl);
         }
     };
 
@@ -398,14 +415,20 @@ humhub.module('calendar', function (module, require, $) {
     var deleteEvent = function(evt) {
         var streamEntry = Widget.closest(evt.$trigger);
         streamEntry.loader();
-        modal.confirm().then(function() {
-            client.post(evt).then(function() {
-                modal.global.close();
-            }).catch(function(e) {
-                module.log.error(e, true);
-            });
+        modal.confirm().then(function(confirm) {
+            if(confirm) {
+                client.post(evt).then(function() {
+                    modal.global.close();
+                }).catch(function(e) {
+                    module.log.error(e, true);
+                });
+            } else {
+                var streamEntry = Widget.closest(evt.$trigger);
+                streamEntry.loader(false);
+            }
+        }).finally(function() {
+            evt.finish();
         });
-
     };
 
     module.export({

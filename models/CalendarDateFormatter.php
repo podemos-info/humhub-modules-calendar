@@ -11,6 +11,8 @@
  * User: buddha
  * Date: 17.09.2017
  * Time: 21:21
+ *
+ * @todo change base class back to BaseObject after v1.3 is stable
  */
 
 namespace humhub\modules\calendar\models;
@@ -20,9 +22,9 @@ use Yii;
 use DateTime;
 use humhub\libs\TimezoneHelper;
 use humhub\modules\calendar\interfaces\CalendarItem;
-use yii\base\Object;
+use yii\base\Component;
 
-class CalendarDateFormatter extends Object
+class CalendarDateFormatter extends Component
 {
 
     /**
@@ -131,7 +133,12 @@ class CalendarDateFormatter extends Object
 
     public function getDurationDays()
     {
-        $interval = $this->calendarItem->getStartDateTime()->diff($this->calendarItem->getEndDateTime(), true);
+        $end = $this->calendarItem->getEndDateTime();
+        if ($this->calendarItem->isAllDay()) {
+            if ($end === $this->calendarItem->getEndDateTime()->setTime('00', '00', '00'))
+                $end->modify('-1 day'); // revert modifications for all-day events integrated via interface
+        }
+        $interval = $this->calendarItem->getStartDateTime()->diff($end, true);
         return $interval->days + 1;
     }
 

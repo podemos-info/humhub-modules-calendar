@@ -9,13 +9,13 @@
 
 namespace humhub\modules\calendar\models\forms;
 
+use humhub\modules\topic\models\Topic;
 use Yii;
 use yii\base\Model;
 use DateInterval;
 use DateTime;
 use DateTimeZone;
 use humhub\libs\DbDateValidator;
-use humhub\libs\TimezoneHelper;
 use humhub\modules\calendar\CalendarUtils;
 use humhub\modules\calendar\models\CalendarEntryType;
 use humhub\modules\calendar\models\DefaultSettings;
@@ -66,6 +66,11 @@ class CalendarEntryForm extends Model
      */
     public $type_id;
 
+    /**
+     * @var
+     */
+    public $topics = [];
+
     /*
      * @var array
      */
@@ -75,6 +80,11 @@ class CalendarEntryForm extends Model
      * @var bool
      */
     public $sendUpdateNotification = 0;
+
+    /**
+     * @var integer if set to true all space participants will be added to the event
+     */
+    public $forceJoin = 0;
 
     /**
      * @var CalendarEntry
@@ -99,7 +109,7 @@ class CalendarEntryForm extends Model
                 $this->type_id = $type->id;
             }
 
-
+            $this->topics = $this->entry->content->getTags(Topic::class);
         }
     }
 
@@ -110,10 +120,11 @@ class CalendarEntryForm extends Model
     {
         return [
             [['timeZone'], 'in', 'range' => DateTimeZone::listIdentifiers()],
-            [['is_public', 'type_id', 'sendUpdateNotification'], 'integer'],
+            [['topics'], 'safe'],
+            [['is_public', 'type_id', 'sendUpdateNotification', 'forceJoin'], 'integer'],
             [['start_time', 'end_time'], 'date', 'type' => 'time', 'format' => $this->getTimeFormat()],
-            [['start_date'], DbDateValidator::className(), 'format' => Yii::$app->params['formatter']['defaultDateFormat'], 'timeAttribute' => 'start_time', 'timeZone' => $this->timeZone],
-            [['end_date'], DbDateValidator::className(), 'format' => Yii::$app->params['formatter']['defaultDateFormat'], 'timeAttribute' => 'end_time', 'timeZone' => $this->timeZone],
+            [['start_date'], DbDateValidator::class, 'format' => Yii::$app->params['formatter']['defaultDateFormat'], 'timeAttribute' => 'start_time', 'timeZone' => $this->timeZone],
+            [['end_date'], DbDateValidator::class, 'format' => Yii::$app->params['formatter']['defaultDateFormat'], 'timeAttribute' => 'end_time', 'timeZone' => $this->timeZone],
             [['end_date'], 'validateEndTime'],
             [['type_id'], 'validateType'],
         ];
@@ -181,6 +192,9 @@ class CalendarEntryForm extends Model
             'timeZone' => Yii::t('CalendarModule.base', 'Time Zone'),
             'is_public' => Yii::t('CalendarModule.base', 'Public'),
             'sendUpdateNotification' => Yii::t('CalendarModule.base', 'Send update notification'),
+            'forceJoin' => ($this->entry->isNewRecord)
+                ? Yii::t('CalendarModule.base', 'Add all space members to this event')
+                : Yii::t('CalendarModule.base', 'Add remaining space members to this event'),
         ];
     }
 
@@ -211,9 +225,6 @@ class CalendarEntryForm extends Model
         }
 
 
-
-        //$this->translateDateTimes($this->entry->start_datetime, $this->entry->end_datetime, Yii::$app->timeZone, $this->timeZone);
-
         $this->entry->content->visibility = $this->is_public;
 
         if(!$this->entry->load($data)) {
@@ -228,6 +239,10 @@ class CalendarEntryForm extends Model
         return true;
     }
 
+    /**
+     * @return bool
+     * @throws \Throwable
+     */
     public function save()
     {
         if(!$this->validate()) {
@@ -241,20 +256,29 @@ class CalendarEntryForm extends Model
         // The form expects user time zone, so we translate back from app to user timezone
         $this->translateDateTimes($this->entry->start_datetime, $this->entry->end_datetime, Yii::$app->timeZone, $this->timeZone);
 
-        if($this->entry->save()) {
-            $this->entry->fileManager->attach($this->entry->files);
-            if(!empty($this->type_id)) {
-                $this->entry->setType($this->type_id);
+        return CalendarEntry::getDb()->transaction(function($db) {
+            if($this->entry->save()) {
+                $this->entry->fileManager->attach($this->entry->files);
+
+                if(!empty($this->type_id)) {
+                    $this->entry->setType($this->type_id);
+                }
+
+                if($this->sendUpdateNotification && !$this->entry->isNewRecord) {
+                    $this->entry->sendUpdateNotification();
+                }
+
+                if($this->forceJoin) {
+                    $this->entry->addAllUsers();
+                }
+
+                Topic::attach($this->entry->content, $this->topics);
+
+                return true;
             }
 
-            if($this->sendUpdateNotification && !$this->entry->isNewRecord) {
-                $this->entry->sendUpdateNotification();
-            }
-
-            return true;
-        }
-
-        return false;
+            return false;
+        });
     }
 
     public static function getParticipationModeItems()

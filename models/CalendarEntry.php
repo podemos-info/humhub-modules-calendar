@@ -4,18 +4,19 @@ namespace humhub\modules\calendar\models;
 
 use DateTimeZone;
 use humhub\libs\Html;
-use humhub\libs\TimezoneHelper;
 use humhub\modules\calendar\CalendarUtils;
 use humhub\modules\calendar\interfaces\CalendarItem;
 use humhub\modules\calendar\notifications\CanceledEvent;
 use humhub\modules\calendar\notifications\EventUpdated;
 use humhub\modules\calendar\notifications\ReopenedEvent;
 use humhub\modules\calendar\permissions\ManageEntry;
-use humhub\modules\calendar\widgets\EntryParticipants;
 use humhub\modules\calendar\widgets\WallEntry;
 use humhub\modules\content\models\Content;
 use humhub\modules\content\models\ContentTag;
 use humhub\modules\search\interfaces\Searchable;
+use humhub\modules\space\models\Membership;
+use humhub\modules\space\models\Space;
+use humhub\modules\calendar\jobs\ForceParticipation;
 use humhub\widgets\Label;
 use Yii;
 use DateTime;
@@ -24,7 +25,6 @@ use yii\base\Exception;
 use humhub\libs\DbDateValidator;
 use humhub\modules\content\components\ContentContainerActiveRecord;
 use humhub\modules\content\components\ContentActiveRecord;
-use humhub\modules\calendar\models\CalendarEntryParticipant;
 use humhub\modules\user\models\User;
 use yii\db\ActiveQuery;
 
@@ -86,6 +86,16 @@ class CalendarEntry extends ContentActiveRecord implements Searchable, CalendarI
     public $files = [];
 
     /**
+     * @inheritdoc
+     */
+    public $canMove = true;
+
+    /**
+     * @inheritdoc
+     */
+    public $moduleId = 'calendar';
+
+    /**
      * Participation Modes
      */
     const PARTICIPATION_MODE_NONE = 0;
@@ -105,7 +115,6 @@ class CalendarEntry extends ContentActiveRecord implements Searchable, CalendarI
      * Filters
      */
     const FILTER_PARTICIPATE = 1;
-    const FILTER_INVITED = 2;
     const FILTER_NOT_RESPONDED = 3;
     const FILTER_RESPONDED = 4;
     const FILTER_MINE = 5;
@@ -113,6 +122,9 @@ class CalendarEntry extends ContentActiveRecord implements Searchable, CalendarI
     public function init()
     {
         parent::init();
+
+        // There was a problem in < 1.3.2 where the target container was available in $afterMove
+        $this->canMove = version_compare(Yii::$app->version, '1.3.2', '>=');
 
         // Default participiation Mode
         $this->participation_mode = self::PARTICIPATION_MODE_ALL;
@@ -183,8 +195,8 @@ class CalendarEntry extends ContentActiveRecord implements Searchable, CalendarI
             [['files'], 'safe'],
             [['title', 'start_datetime', 'end_datetime'], 'required'],
             ['color', 'string'],
-            [['start_datetime'], DbDateValidator::className()],
-            [['end_datetime'], DbDateValidator::className()],
+            [['start_datetime'], DbDateValidator::class],
+            [['end_datetime'], DbDateValidator::class],
             [['all_day', 'allow_decline', 'allow_maybe', 'max_participants'], 'integer'],
             [['title'], 'string', 'max' => 200],
             [['participation_mode'], 'in', 'range' => self::$participationModes],
@@ -260,26 +272,37 @@ class CalendarEntry extends ContentActiveRecord implements Searchable, CalendarI
         $this->closed = ($this->closed) ? 0 : 1;
         $this->save();
 
-        $participants = $this->getParticipantUsersByState([
-            CalendarEntryParticipant::PARTICIPATION_STATE_MAYBE,
-            CalendarEntryParticipant::PARTICIPATION_STATE_ACCEPTED,
-            CalendarEntryParticipant::PARTICIPATION_STATE_INVITED]);
-
         if($this->closed) {
-            CanceledEvent::instance()->from(Yii::$app->user->getIdentity())->about($this)->sendBulk($participants);
+            $this->sendUpdateNotification(CanceledEvent::class);
         } else {
-            ReopenedEvent::instance()->from(Yii::$app->user->getIdentity())->about($this)->sendBulk($participants);
+            $this->sendUpdateNotification(ReopenedEvent::class);
         }
     }
 
-    public function sendUpdateNotification()
+    /**
+     * @param string $notificationClass
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function sendUpdateNotification($notificationClass = EventUpdated::class)
     {
         $participants = $this->getParticipantUsersByState([
             CalendarEntryParticipant::PARTICIPATION_STATE_MAYBE,
-            CalendarEntryParticipant::PARTICIPATION_STATE_ACCEPTED,
-            CalendarEntryParticipant::PARTICIPATION_STATE_INVITED]);
+            CalendarEntryParticipant::PARTICIPATION_STATE_ACCEPTED]);
 
-        EventUpdated::instance()->from(Yii::$app->user->getIdentity())->about($this)->sendBulk($participants);
+        Yii::createObject(['class' => $notificationClass])->from(Yii::$app->user->getIdentity())->about($this)->sendBulk($participants);
+    }
+
+    public function addAllUsers()
+    {
+        if($this->participation_mode == static::PARTICIPATION_MODE_ALL && $this->canAddAll()) {
+            Yii::$app->queue->push(new ForceParticipation(['entry_id' => $this->id, 'originator_id' => Yii::$app->user->getId()]));
+        }
+    }
+
+    public function canAddAll()
+    {
+        return  $this->content->container instanceof Space
+            && $this->content->container->can(ManageEntry::class);
     }
 
     /**
@@ -393,14 +416,14 @@ class CalendarEntry extends ContentActiveRecord implements Searchable, CalendarI
             Yii::$app->formatter->timeZone = Yii::$app->user->getIdentity()->time_zone;
         }
 
-        $title = Html::encode($this->title) . (($this->closed) ? ' ('.Yii::t('CalendarModule.base', 'canceled').')' : '');
+        $title = $this->title . (($this->closed) ? ' ('.Yii::t('CalendarModule.base', 'canceled').')' : '');
 
         return [
             'id' => $this->id,
             'title' => $title,
             'editable' => $this->content->canEdit(),
             'backgroundColor' => Html::encode($this->color),
-            'allDay' => $this->all_day,
+            'allDay' => (boolean) $this->all_day,
             'updateUrl' => $this->content->container->createUrl('/calendar/entry/edit-ajax', ['id' => $this->id]),
             'viewUrl' => $this->content->container->createUrl('/calendar/entry/view', ['id' => $this->id, 'cal' => '1']),
             'start' => Yii::$app->formatter->asDatetime($this->start_datetime, 'php:c'),
@@ -479,6 +502,35 @@ class CalendarEntry extends ContentActiveRecord implements Searchable, CalendarI
         return false;
     }
 
+    public function respond($type, User $user = null) {
+        if ($user == null && !Yii::$app->user->isGuest) {
+            $user = Yii::$app->user->getIdentity();
+        }
+
+        // TODO return a calendarEntryParticipant with errors explaining why
+        if(!$this->canRespond()) {
+            return null;
+        }
+
+        $calendarEntryParticipant = $this->findParticipant($user);
+
+        if ($calendarEntryParticipant == null) {
+            $calendarEntryParticipant = new CalendarEntryParticipant([
+                'user_id' => $user->id,
+                'calendar_entry_id' => $this->id]);
+        }
+
+        if($type === CalendarEntryParticipant::PARTICIPATION_STATE_NONE) {
+            // never explicitly store PARTICIPATION_STATE 0
+            $calendarEntryParticipant->delete();
+        } else {
+            $calendarEntryParticipant->participation_state = $type;
+            $calendarEntryParticipant->save();
+        }
+
+        return $calendarEntryParticipant;
+    }
+
     public function getParticipationState(User $user = null)
     {
         if (Yii::$app->user->isGuest) {
@@ -496,7 +548,7 @@ class CalendarEntry extends ContentActiveRecord implements Searchable, CalendarI
             return $participant->participation_state;
         }
 
-        return 0;
+        return CalendarEntryParticipant::PARTICIPATION_STATE_NONE;
     }
 
     /**
@@ -525,13 +577,9 @@ class CalendarEntry extends ContentActiveRecord implements Searchable, CalendarI
         return $this->formatter->getOffsetDays();
     }
 
-    public function getParticipantCount($state = null)
+    public function getParticipantCount($state)
     {
-        if($state) {
-            return $this->getParticipants()->where(['participation_state' => $state])->count();
-        } else {
-            return $this->getParticipants()->count();
-        }
+        return $this->getParticipants()->where(['participation_state' => $state])->count();
     }
 
     /**
@@ -637,8 +685,6 @@ class CalendarEntry extends ContentActiveRecord implements Searchable, CalendarI
             switch($participant->participation_state) {
                 case CalendarEntryParticipant::PARTICIPATION_STATE_ACCEPTED:
                     return Label::success(Yii::t('CalendarModule.base', 'Attending'))->right();
-                case CalendarEntryParticipant::PARTICIPATION_STATE_INVITED:
-                    return Label::success(Yii::t('CalendarModule.base', 'Invited'))->right();
                 case CalendarEntryParticipant::PARTICIPATION_STATE_MAYBE:
                     if($this->allow_maybe) {
                         return Label::success(Yii::t('CalendarModule.base', 'Interested'))->right();
@@ -647,5 +693,32 @@ class CalendarEntry extends ContentActiveRecord implements Searchable, CalendarI
         }
 
         return null;
+    }
+
+    public function generateIcs()
+    {
+        $timezone = Yii::$app->settings->get('timeZone');
+        $ics = new ICS($this->title, $this->description,$this->start_datetime, $this->end_datetime, null, null, $timezone, $this->all_day);
+        return $ics;
+    }
+
+    public function afterMove(ContentContainerActiveRecord $container = null)
+    {
+        if($container) {
+            $spaceMemberQuery = Membership::find()
+                ->where('space_membership.user_id = calendar_entry_participant.user_id')
+                ->andWhere(['space_membership.space_id' => $container->id]);
+
+            $query = $this->getParticipants()->andWhere(['NOT EXISTS', $spaceMemberQuery]);
+
+            foreach ($query->all() as $nonSpaceMember) {
+                try {
+                    $nonSpaceMember->delete();
+                } catch (\Throwable $e) {
+                    Yii::error($e);
+                }
+            }
+        }
+
     }
 }

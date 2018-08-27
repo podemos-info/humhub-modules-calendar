@@ -18,6 +18,9 @@ return [
         ['class' => ProfileSidebar::className(), 'event' => ProfileSidebar::EVENT_INIT, 'callback' => ['humhub\modules\calendar\Events', 'onProfileSidebarInit']],
         ['class' => humhub\modules\dashboard\widgets\Sidebar::className(), 'event' => humhub\modules\dashboard\widgets\Sidebar::EVENT_INIT, 'callback' => ['humhub\modules\calendar\Events', 'onDashboardSidebarInit']],
         ['class' => TopMenu::className(), 'event' => TopMenu::EVENT_INIT, 'callback' => ['humhub\modules\calendar\Events', 'onTopMenuInit']],
-        ['class' => CronController::className(), 'event' => CronController::EVENT_ON_HOURLY_RUN, 'callback' => ['humhub\modules\calendar\Events', 'onHourlyCron']]
+        ['class' => 'humhub\modules\calendar\interfaces\CalendarService', 'event' => 'getItemTypes', 'callback' => ['humhub\modules\calendar\Events', 'onGetCalendarItemTypes']],
+        ['class' => 'humhub\modules\calendar\interfaces\CalendarService', 'event' => 'findItems', 'callback' => ['humhub\modules\calendar\Events', 'onFindCalendarItems']],
+        ['class' => '\humhub\modules\content\widgets\WallEntryLinks', 'event' => 'init', 'callback' => ['humhub\modules\calendar\Events', 'onWallEntryLinks']],
+        ['class' => CronController::className(), 'event' => CronController::EVENT_ON_HOURLY_RUN, 'callback' => ['humhub\modules\calendar\Events', 'onHourlyCron']],
     ],
 ];

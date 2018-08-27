@@ -1,6 +1,7 @@
 <?php
 return array (
-  'Defaults' => 'Par défaut',
-  'Event Types' => 'Types d\'événement',
+  'Defaults' => 'Général',
+  'Event Types' => 'Types',
+  'Other Calendars' => 'Autres calendriers',
   'Snippet' => 'Extrait',
 );

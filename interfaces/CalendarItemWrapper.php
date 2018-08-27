@@ -11,6 +11,8 @@
  * User: buddha
  * Date: 14.09.2017
  * Time: 17:16
+ *
+ * @todo change base class back to BaseObject after v1.3 is stable
  */
 
 namespace humhub\modules\calendar\interfaces;
@@ -19,10 +21,10 @@ namespace humhub\modules\calendar\interfaces;
 use humhub\widgets\Label;
 use Yii;
 use \DateTime;
-use yii\base\Object;
+use yii\base\Component;
 use yii\helpers\Html;
 
-class CalendarItemWrapper extends Object implements CalendarItem
+class CalendarItemWrapper extends Component implements CalendarItem
 {
     const OPTION_START = 'start';
     const OPTION_END = 'end';
@@ -37,9 +39,6 @@ class CalendarItemWrapper extends Object implements CalendarItem
     const OPTION_BADGE = 'badge';
     const OPTION_EDITABLE = 'editable';
     const OPTION_TIMEZONE = 'timezone';
-
-    const VIEW_MODE_MODAL = 'modal';
-    const VIEW_MODE_BLANK = 'blank';
 
     /**
      * @var CalendarItemType
@@ -57,15 +56,18 @@ class CalendarItemWrapper extends Object implements CalendarItem
     public function getFullCalendarArray()
     {
         return [
-            'title' => Html::encode($this->getTitle()),
+            'title' => $this->getTitle(),
             'editable' => $this->isEditable(),
             'backgroundColor' => Html::encode($this->getColor()),
             'allDay' => $this->isAllDay(),
             'updateUrl' => $this->getUpdateUrl(),
             'viewUrl' => $this->getViewUrl(),
             'viewMode' => $this->getViewMode(),
+            'icon' => $this->getIcon(),
             'start' => Yii::$app->formatter->asDatetime($this->getStartDateTime(), 'php:c'),
             'end' => Yii::$app->formatter->asDatetime($this->getEndDateTime(), 'php:c'),
+            'eventDurationEditable' => true,
+            'eventStartEditable' => true
         ];
     }
 

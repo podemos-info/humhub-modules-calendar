@@ -1,5 +1,6 @@
 <?php
 return array (
+  '(disabled)' => '(ikke i bruk)',
   '(global)' => '(global)',
   '<strong>Calendar</strong> module configuration' => 'Konfigurasjon <strong>Kalender</strong>modul',
   '<strong>Confirm</strong> Deletion' => '<strong>Bekreft</strong> sletting',
@@ -12,6 +13,7 @@ return array (
   'Half a year' => 'Et halvt år',
   'Here you can configure default settings for new calendar events.' => 'Her kan du konfigurere standard innstillinger for kalender aktiviteter',
   'Here you can configure default settings for new calendar events. These settings can be overwritten on space/profile level.' => 'Her kan du konfigurere standard innstillinger for kalender aktiviteter. Innstillingene kan skrives over på gruppe- og profilnivå.',
+  'Here you can manage calendar types provided by other modules.' => 'Her kan du redigere kalender typene som er støttet i andre moduler',
   'Here you can manage your event types.' => 'Her kan du redigere dine aktivitetstyper',
   'If activated, the calendar top menu item and dashboard snippet is only visible for users having the calendar module installed in their profile.' => 'Hvis aktivert, vil Kalender kun vise i hovedmenyen og snippet under Oversikt kun være synlig for brukere som har kalendermodulen installert på sin profil.',
   'Interval of upcoming events' => 'Intervall for kommende aktiviteter ',
@@ -21,6 +23,7 @@ return array (
   'One week' => 'En uke',
   'One year' => 'Ett år',
   'Only show top menu item and snippet if the module is installed in the users profile' => 'Vis kun øverste menypunkt og snippet hvis modulen er installert på brukerens profil',
+  'Other Calendars Configuration' => 'Andre kalender konfigurasjoner',
   'Reset' => 'Tilbakestill',
   'Show snippet' => 'Vis snippet',
   'Sort order' => 'Sorteringsrekkefølge',

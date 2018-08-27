@@ -17,7 +17,8 @@
  * NOTE: this file must be saved in UTF-8 encoding.
  */
 return [
-    'Defaults' => '',
-    'Event Types' => '',
-    'Snippet' => '',
+    'Other Calendars' => '',
+    'Defaults' => 'Alapértelmezett',
+    'Event Types' => 'Esemény típus',
+    'Snippet' => 'Töredék',
 ];
