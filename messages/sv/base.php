@@ -2,6 +2,8 @@
 return array (
   '<strong>Add</strong> profile calendar' => '<strong>Lägg till</strong> Profilkalender',
   '<strong>Choose</strong> target calendar' => '<strong>Välj</strong> kalender',
+  'Add all space members to this event' => 'Lägg till alla användare till denna aktivitet',
+  'Add remaining space members to this event' => 'Lägg till resterande användare till denna aktivitet',
   'Adds a calendar for private or public events to your profile and main menu.' => 'Lägger till en kalender för privata eller publika aktiviteter till din profil och huvudmeny.',
   'Adds an event calendar to this space.' => 'Lägger till en kalender till detta nätverk',
   'All Day' => 'Hela dagen',
@@ -44,4 +46,5 @@ return array (
   'You don\'t have permission to delete this event!' => 'Du har inte tillåtelse att ta bort denna händelse!',
   'canceled' => 'Inställd',
   '{displayName} Birthday' => '{displayName} Födelsedag',
+  '{displayName} just added you to event "{contentTitle}" in space {spaceName} starting at {time}.' => '{displayName} lade precis till dig till aktiviteten "{contentTitle}" i nätverket {spaceName} startar {time}.',
 );

@@ -2,6 +2,8 @@
 return array (
   '<strong>Add</strong> profile calendar' => '<Strong>Voeg</ strong>een profielagenda toe',
   '<strong>Choose</strong> target calendar' => '<strong>Kies</ strong> doelagenda',
+  'Add all space members to this event' => 'Voeg alle leden van deze ruimte toe aan deze gebeurtenis',
+  'Add remaining space members to this event' => 'Resterende leden van deze ruimte toevoegen aan deze gebeurtenis',
   'Adds a calendar for private or public events to your profile and main menu.' => 'Voegt een agenda voor private of publieke evenementen toe aan uw profiel en hoofdmenu.',
   'Adds an event calendar to this space.' => 'Voegt een agenda toe aan deze ruimte.',
   'All Day' => 'Volledige dag',
@@ -41,7 +43,8 @@ return array (
   'Start Time' => 'Starttijd',
   'Time Zone' => 'Tijdzone',
   'Title' => 'Titel',
-  'You don\'t have permission to delete this event!' => 'Je hebt geen toestemming om dit evenement te verwijderen!',
+  'You don\'t have permission to delete this event!' => 'U hebt geen toestemming om dit evenement te verwijderen!',
   'canceled' => 'geannuleerd',
   '{displayName} Birthday' => '{displayName} Verjaardag',
+  '{displayName} just added you to event "{contentTitle}" in space {spaceName} starting at {time}.' => '{displayName} heeft u zojuist aan {"{contentTitle}" in ruimte {spaceName} vanaf {time} toegevoegd.',
 );

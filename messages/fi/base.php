@@ -1,10 +1,9 @@
 <?php
 
 return [
-    'Birthday' => '',
-    'Cancel Event' => '',
-    'Reopen Event' => '',
-    '{displayName} Birthday' => '',
+    'Add all space members to this event' => '',
+    'Add remaining space members to this event' => '',
+    '{displayName} just added you to event "{contentTitle}" in space {spaceName} starting at {time}.' => '',
     '<strong>Add</strong> profile calendar' => '<strong>Lisää</strong> kalenteri',
     '<strong>Choose</strong> target calendar' => '<strong>Valitse</strong> kalenteri',
     'Adds a calendar for private or public events to your profile and main menu.' => 'Lisää kalenteri yksityisiin tai julkisiin tapahtumiin profiiliisi ja päävalikkoosi.',
@@ -14,7 +13,9 @@ return [
     'Allow participation state \'maybe\'' => 'salli osallistuminen asema \'ehkä\'',
     'Attending' => 'Osallistuvat',
     'Attending users' => 'Osallistuvat käyttäjät',
+    'Birthday' => 'Syntymäpäivä',
     'Calendar' => 'Kalenteri',
+    'Cancel Event' => 'Poista Tapahtuma',
     'Close' => 'Sulje',
     'Declining users' => 'Käyttäjien hylkääminen',
     'Description' => 'Kuvaus',
@@ -38,6 +39,7 @@ return [
     'Participation Mode' => 'Osallistumistila',
     'Profile Calendar' => 'Profiili Kalenteri',
     'Public' => 'Julkinen',
+    'Reopen Event' => 'Avaa tapahtuma uudelleen',
     'Send update notification' => 'Lähetä päivitysilmoituksia',
     'Start Date' => 'Aloituspäivä',
     'Start Time' => 'Aloitusaika',
@@ -45,4 +47,5 @@ return [
     'Title' => 'Otsikko',
     'You don\'t have permission to delete this event!' => 'Sinulla ei ole lupaa poistaa tätä tapahtumaa!',
     'canceled' => 'peruutettu',
+    '{displayName} Birthday' => '{displayName} Syntymäpäivä',
 ];

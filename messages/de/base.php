@@ -2,6 +2,8 @@
 return array (
   '<strong>Add</strong> profile calendar' => 'Profilkalender <strong>erstellen</strong>',
   '<strong>Choose</strong> target calendar' => 'Zielkalender <strong>wählen</strong>',
+  'Add all space members to this event' => 'Alle Mitglieder dieses Spaces hinzufügen',
+  'Add remaining space members to this event' => 'Restliche Mitglieder dieses Spaces hinzufügen',
   'Adds a calendar for private or public events to your profile and main menu.' => 'Fügt deinem Profil und Hauptmenü einen Kalender für private und öffentliche Termine hinzu.',
   'Adds an event calendar to this space.' => 'Fügt diesem Space einen Kalender hinzu.',
   'All Day' => 'Ganztägig',
@@ -44,4 +46,5 @@ return array (
   'You don\'t have permission to delete this event!' => 'Du hast nicht die Berechtigung diesen Termin zu löschen!',
   'canceled' => 'abgebrochen',
   '{displayName} Birthday' => '{displayName} Geburtstag',
+  '{displayName} just added you to event "{contentTitle}" in space {spaceName} starting at {time}.' => '{displayName} hat dich gerade zu Termin "{contentTitle}" beginnend {time} in Space {spaceName} hinzugefügt.',
 );

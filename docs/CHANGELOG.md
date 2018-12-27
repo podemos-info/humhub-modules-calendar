@@ -1,6 +1,19 @@
 Changelog
 =========
 
+0.6.22 (November 27, 2018)
+-----------------------
+- Fix: Hide permissions for space guest role
+
+0.6.21 (November 14, 2018)
+-----------------------
+- Fix: Same day events displaying wrong output date format
+
+0.6.20 (September 17, 2018)
+-----------------------
+- Enh: Added time information to force participation mail
+- Enh: Updated Translations
+
 0.6.19 (September 04, 2018)
 -----------------------
 - Fix: Other calendar configuration view not working
