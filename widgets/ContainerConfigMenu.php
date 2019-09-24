@@ -74,7 +74,7 @@ class ContainerConfigMenu extends SettingsTabs
             ],
             [
                 'label' => Yii::t('CalendarModule.views_external_source_index', 'External Sources'),
-                'url' => $contentContainer->createUrl('/calendar/container-config/sources'),
+                'url' => $this->contentContainer->createUrl('/calendar/container-config/sources'),
                 'active' => $this->isCurrentRoute('calendar', 'container-config', 'sources')
             ]
         ];
