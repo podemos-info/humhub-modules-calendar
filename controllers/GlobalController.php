@@ -5,12 +5,15 @@ namespace humhub\modules\calendar\controllers;
 use DateTime;
 use humhub\components\Controller;
 use humhub\libs\Html;
+use humhub\modules\calendar\CalendarUtils;
 use humhub\modules\calendar\interfaces\CalendarService;
 use humhub\modules\calendar\models\SnippetModuleSettings;
 use humhub\modules\calendar\permissions\CreateEntry;
 use humhub\modules\content\components\ActiveQueryContent;
+use humhub\modules\content\components\ContentContainerModuleManager;
 use humhub\modules\content\models\ContentContainer;
 use humhub\modules\space\models\Membership;
+use humhub\modules\space\models\Space;
 use humhub\modules\user\models\User;
 use humhub\widgets\ModalButton;
 use humhub\widgets\ModalDialog;
@@ -65,7 +68,6 @@ class GlobalController extends Controller
     public function actionIndex()
     {
         if (!Yii::$app->user->isGuest) {
-            $configureUrl = Yii::$app->user->getIdentity()->createUrl('/calendar/container-config');
             $moduleEnabled = Yii::$app->user->getIdentity()->isModuleEnabled('calendar');
         } else {
             $moduleEnabled = false;
@@ -76,7 +78,6 @@ class GlobalController extends Controller
             'selectors' => $this->getSelectorSettings(),
             'filters' => $this->getFilterSettings(),
             'canConfigure' => $moduleEnabled,
-            'configureUrl' => $configureUrl,
             'editUrl' => Url::to(['/calendar/entry/edit'])
         ]);
     }
@@ -90,20 +91,17 @@ class GlobalController extends Controller
         $contentContainerSelection[$user->contentcontainer_id] = Yii::t('CalendarModule.base', 'Profile Calendar');
 
         $calendarMemberSpaceQuery = Membership::getUserSpaceQuery(Yii::$app->user->getIdentity());
-        if (version_compare(Yii::$app->version, '1.3', '>')) {
+
+        if(!ContentContainerModuleManager::getDefaultState(Space::class, 'calendar')) {
             $calendarMemberSpaceQuery->leftJoin('contentcontainer_module',
                 'contentcontainer_module.module_id = :calendar AND contentcontainer_module.contentcontainer_id = space.contentcontainer_id',
                 [':calendar' => 'calendar']
-            );
-            $calendarMemberSpaceQuery->andWhere('contentcontainer_module.module_id IS NOT NULL');
-        } else {
-            $calendarMemberSpaceQuery->leftJoin('space_module', 'space_module.module_id = :calendar AND space_module.space_id = space.id', [':calendar' => 'calendar']);
-            $calendarMemberSpaceQuery->andWhere('space_module.id IS NOT NULL');
+            )->andWhere('contentcontainer_module.module_id IS NOT NULL');
         }
 
         foreach ($calendarMemberSpaceQuery->all() as $space) {
             if ($space->permissionManager->can(CreateEntry::class)) {
-                $contentContainerSelection[$space->contentcontainer_id] = Html::encode($space->displayName);
+                $contentContainerSelection[$space->contentcontainer_id] = $space->displayName;
             }
         }
 
@@ -117,7 +115,7 @@ class GlobalController extends Controller
     {
         $this->forcePostRequest();
 
-        $contentContainer = ContentContainer::findOne(Yii::$app->request->post('contentCotnainerId'));
+        $contentContainer = ContentContainer::findOne(Yii::$app->request->post('contentContainerId'));
 
         if (empty($contentContainer)) {
             throw new HttpException(404);
@@ -212,9 +210,9 @@ class GlobalController extends Controller
 
             $filters['userRelated'] = $selectors;
 
-            $entries = $this->calendarService->getCalendarItems(new DateTime($start), new DateTime($end), $filters);
+            $entries = $this->calendarService->getCalendarItems(new DateTime($start, CalendarUtils::getUserTimeZone()), new DateTime($end, CalendarUtils::getUserTimeZone()), $filters);
         } else {
-            $entries = $this->calendarService->getCalendarItems(new DateTime($start), new DateTime($end));
+            $entries = $this->calendarService->getCalendarItems(new DateTime($start, CalendarUtils::getUserTimeZone()), new DateTime($end, CalendarUtils::getUserTimeZone()));
         }
 
         foreach ($entries as $entry) {

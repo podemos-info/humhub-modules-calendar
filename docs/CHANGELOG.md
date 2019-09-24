@@ -1,6 +1,38 @@
 Changelog
 =========
 
+0.7.3 (August 28, 2019)
+-----------------------
+- Fix: My events filter not working
+
+0.7.2 (August 22, 2019)
+-----------------------
+- Fix: `VCalendar::withEvents()` broken
+
+0.7.1 (August 22, 2019)
+-----------------------
+- Fix: Issue with PHP < 7 use of incompatible sabre/xml version
+
+0.7 (August 22, 2019)
+-----------------------
+- Enh: Added `humhub\modules\calendar\widgets\CalendarControls` stacked menu in full calendar view
+- Chng: Added VObject dependency for ICS handling (dev-master see https://github.com/sabre-io/vobject/issues/448)
+- Enh: Added `uid` field and auto UID creation in AbstractCalendarQuery
+- Fix: Fixed encoding issue in space selection dropdown
+- Fix: Space selection dropdown does not respect default module installation
+- Fix #156: Upcoming events includes events already finished today
+- Enh: Added `CalendarUtils::getUserTimeZone()`
+- Enh: Added `AbstractCalendarQuery::expand` flag and  `AbstractCalendarQuery::expand()` for calendars with event expansion possibility
+- Enh: Added `CalendarItemsEvent::expand` flag in order to query unexpanded or expanded event results
+- Chng: Added `getRRule()`, `getExdate()`, 'getLocation()', 'getDescription()' to `interface\CalendarItem` interface
+- Enh: Added rounded top border to global calendar view
+- Chng: Updated min version to 1.3.14
+
+0.6.23 (November 27, 2018)
+-----------------------
+- Enh: Use of new richtext
+- Fix: Participation info label not translatable
+
 0.6.22 (November 27, 2018)
 -----------------------
 - Fix: Hide permissions for space guest role

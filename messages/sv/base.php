@@ -34,6 +34,7 @@ return array (
   'Maximum number of participants' => 'Max antal deltagare',
   'Maybe attending users' => 'Användare som kanske kommer',
   'Next' => 'Nästa',
+  'Participation Info' => 'Deltagarinfo',
   'Participation Mode' => 'Deltagande',
   'Profile Calendar' => 'Profilkalender',
   'Public' => 'Publik',

@@ -2,10 +2,10 @@
 
 namespace humhub\modules\calendar\controllers;
 
+use humhub\modules\calendar\CalendarUtils;
+use Yii;
 use DateTime;
 use humhub\modules\calendar\interfaces\CalendarService;
-use humhub\modules\space\models\Space;
-use Yii;
 use humhub\modules\calendar\permissions\CreateEntry;
 use humhub\modules\content\components\ContentContainerController;
 
@@ -37,36 +37,36 @@ class ViewController extends ContentContainerController
         $this->calendarService = $this->module->get(CalendarService::class);
     }
 
+    /**
+     * @return string
+     * @throws \yii\base\InvalidConfigException
+     */
     public function actionIndex()
     {
         return $this->render('index', [
             'contentContainer' => $this->contentContainer,
             'canAddEntries' => $this->contentContainer->permissionManager->can(new CreateEntry()),
-            'canConfigure' => $this->canConfigure(),
             'filters' => [],
         ]);
     }
 
+    /**
+     * @param $start
+     * @param $end
+     * @return \yii\web\Response
+     * @throws \Exception
+     * @throws \Throwable
+     */
     public function actionLoadAjax($start, $end)
     {
         $result = [];
 
         $filters = Yii::$app->request->get('filters', []);
 
-        foreach ($this->calendarService->getCalendarItems(new DateTime($start), new DateTime($end), $filters, $this->contentContainer) as $entry) {
+        foreach ($this->calendarService->getCalendarItems(new DateTime($start, CalendarUtils::getUserTimeZone()), new DateTime($end, CalendarUtils::getUserTimeZone()), $filters, $this->contentContainer) as $entry) {
             $result[] = $entry->getFullCalendarArray();
         }
 
         return $this->asJson($result);
     }
-
-    public function canConfigure()
-    {
-        if($this->contentContainer instanceof Space) {
-            return $this->contentContainer->isAdmin();
-        } else {
-            return $this->contentContainer->isCurrentUser();
-        }
-    }
-
 }

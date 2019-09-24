@@ -90,4 +90,34 @@ interface CalendarItem
      * @return string
      */
     public function getIcon();
+
+    /**
+     * @return string
+     */
+    public function getUid();
+
+    /**
+     * @return boolean
+     */
+    public function isExportable();
+
+    /**
+     * @return string
+     */
+    public function getRrule();
+
+    /**
+     * @return string
+     */
+    public function getExdate();
+
+    /**
+     * @return string
+     */
+    public function getLocation();
+
+    /**
+     * @return string
+     */
+    public function getDescription();
 }

@@ -1,7 +1,7 @@
 <?php
 return array (
-  '<strong>Add</strong> profile calendar' => '<Strong>Voeg</ strong>een profielagenda toe',
-  '<strong>Choose</strong> target calendar' => '<strong>Kies</ strong> doelagenda',
+  '<strong>Add</strong> profile calendar' => '<strong>Voeg</strong> een profielagenda toe',
+  '<strong>Choose</strong> target calendar' => '<strong>Kies</strong> doelagenda',
   'Add all space members to this event' => 'Voeg alle leden van deze ruimte toe aan deze gebeurtenis',
   'Add remaining space members to this event' => 'Resterende leden van deze ruimte toevoegen aan deze gebeurtenis',
   'Adds a calendar for private or public events to your profile and main menu.' => 'Voegt een agenda voor private of publieke evenementen toe aan uw profiel en hoofdmenu.',
@@ -9,7 +9,7 @@ return array (
   'All Day' => 'Volledige dag',
   'Allow participation state \'decline\'' => 'Sta deelnamestatus \'afwijzen\' toe',
   'Allow participation state \'maybe\'' => 'Sta deelnamestatus \'misschien\' toe',
-  'Attending' => 'Neem deel',
+  'Attending' => 'Deelnemer',
   'Attending users' => 'Deelnemers',
   'Birthday' => 'Verjaardag',
   'Calendar' => 'Agenda',
@@ -34,6 +34,7 @@ return array (
   'Maximum number of participants' => 'Maximaal aantal deelnemers',
   'Maybe attending users' => 'Misschien',
   'Next' => 'Volgende',
+  'Participation Info' => 'Deelname Informatie',
   'Participation Mode' => 'Deelname',
   'Profile Calendar' => 'Profiel agenda',
   'Public' => 'Publiek',

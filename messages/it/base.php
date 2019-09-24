@@ -34,6 +34,7 @@ return array (
   'Maximum number of participants' => 'Numero Massimo di Partecipanti',
   'Maybe attending users' => 'Utenti che forse parteciperanno',
   'Next' => 'Successivo',
+  'Participation Info' => 'Informazioni partecipanti',
   'Participation Mode' => 'Modalità di partecipazione',
   'Profile Calendar' => 'Calendario del profilo',
   'Public' => 'Pubblico',

@@ -10,12 +10,14 @@ namespace humhub\modules\calendar\interfaces;
 
 use DateInterval;
 use Exception;
+use humhub\modules\calendar\models\CalendarEntry;
 use humhub\modules\content\components\ContentContainerActiveRecord;
 use Yii;
 use DateTime;
 use humhub\modules\user\models\User;
 use humhub\modules\content\components\ActiveQueryContent;
 use yii\base\Component;
+use yii\db\ActiveRecord;
 
 /**
  * Created by PhpStorm.
@@ -25,7 +27,6 @@ use yii\base\Component;
  *
  * @todo change base class back to BaseObject after v1.3 is stable
  */
-
 abstract class AbstractCalendarQuery extends Component
 {
     /**
@@ -127,29 +128,93 @@ abstract class AbstractCalendarQuery extends Component
     protected $_built = false;
 
     /**
+     * @var bool determines if the query logic should try to auto assign a uid for the resulting events
+     * @see $uidProperty
+     */
+    protected $autoAssignUid = true;
+
+    /**
+     * @var string This field has to exist on the record class in order for [[autoAssignUid]] to work.
+     */
+    protected $uidProperty = 'uid';
+
+    /**
+     * @var bool if set to true, the [[expand()]] function can be used to expand events e.g. recurrences
+     */
+    protected $expand = false;
+
+    /**
      * @param DateTime $start
      * @param DateTime $end
      * @param ContentContainerActiveRecord $container
      * @param array $filters
      * @param int $limit
      * @return array|\yii\db\ActiveRecord[]
+     * @throws \Throwable
      */
-    public static function findForFilter(DateTime $start, DateTime $end, ContentContainerActiveRecord $container = null, $filters = [], $limit = 50)
+    public static function findForFilter(DateTime $start = null, DateTime $end = null, ContentContainerActiveRecord $container = null, $filters = [], $limit = 50, $expand = true)
     {
-        return static::find()
+        $query = static::find()
             ->container($container)
-            ->from($start)->to($end)
             ->filter($filters)
-            ->limit($limit)->all();
+            ->limit($limit);
+
+        if ($end) {
+            $query->to($end);
+        }
+
+        if ($start) {
+            $query->withTime();
+            $query->from($start);
+        }
+
+        $result = $query->all();
+
+        if (!$query->autoAssignUid && !$expand) {
+            return $result;
+        }
+
+        $expandResult = [];
+
+        foreach ($result as $index => $entry) {
+            /* @var $entry ActiveRecord */
+
+            if ($query->autoAssignUid && $entry->hasProperty($query->uidProperty) && empty($entry->{$query->uidProperty})) {
+                $entry->updateAttributes([$query->uidProperty => CalendarEntry::createUUid()]);
+            }
+
+
+            if ($expand) {
+                $query->expand($entry, $expandResult);
+            }
+        }
+
+        return $query->expand ? $expandResult : $result;
+    }
+
+    /**
+     * This function can be used for subclasses to expand e.g. recurrent events by adding all expanded events to the
+     * endResult array.
+     *
+     * > Note: currently there is no defaul timplementation/helper for recurring events
+     * > Note: the $endResult array does not contain the given $entry.
+     *
+     * @param $entry
+     * @param $endResult
+     */
+    protected function expand($entry, &$expandResult)
+    {
+        $expandResult[] = $entry;
     }
 
     /**
      * @param CalendarItemsEvent $event
      * @return array|\yii\db\ActiveRecord[]
+     * @throws \Throwable
      */
     public static function findForEvent(CalendarItemsEvent $event)
     {
-        return static::findForFilter($event->start, $event->end, $event->contentContainer, $event->filters, $event->limit);
+        return static::findForFilter($event->start, $event->end, $event->contentContainer, $event->filters, $event->limit, $event->expand);
     }
 
 
@@ -157,6 +222,7 @@ abstract class AbstractCalendarQuery extends Component
      * Static initializer.
      * @param User $user user instance used for some of the filter e.g. [[mine()]] by default current logged in user.
      * @return \self
+     * @throws \Throwable
      */
     public static function find(User $user = null)
     {
@@ -165,9 +231,8 @@ abstract class AbstractCalendarQuery extends Component
         }
 
         $instance = new static();
-        $instance->_query = call_user_func(static::$recordClass .'::find');
+        $instance->_query = call_user_func(static::$recordClass . '::find');
         $instance->_user = $user;
-
 
         return $instance;
     }
@@ -351,6 +416,7 @@ abstract class AbstractCalendarQuery extends Component
      *
      * @param int|DateTime $to specifies the actual end date either by an interval (int) or an actual DateTime instance
      * @return $this
+     * @throws Exception
      */
     public function to($to = null, $dateUnit = 'D')
     {
@@ -404,6 +470,7 @@ abstract class AbstractCalendarQuery extends Component
      *
      * @param int|DateTime $to specifies the actual end date either by an interval (int) or an actual DateTime instance
      * @return $this
+     * @throws Exception
      */
     public function from($from = null, $dateUnit = 'D')
     {
@@ -446,6 +513,7 @@ abstract class AbstractCalendarQuery extends Component
      * ```
      * @param int $days interval either positive or negative
      * @return $this
+     * @throws Exception
      * @see interval()
      */
     public function days($days)
@@ -510,6 +578,7 @@ abstract class AbstractCalendarQuery extends Component
      * @param integer $dayRange
      * @param string $dateUnit
      * @return $this
+     * @throws Exception
      */
     public function interval($interval, $dateUnit = "D")
     {
@@ -564,7 +633,7 @@ abstract class AbstractCalendarQuery extends Component
             }
 
             return $this->preFilter($this->_query->all());
-        } catch(FilterNotSupportedException $e) {
+        } catch (FilterNotSupportedException $e) {
             return [];
         }
     }
@@ -595,8 +664,8 @@ abstract class AbstractCalendarQuery extends Component
     {
         $this->setupDateCriteria();
 
-        if(!$this->_orderBy) {
-            $this->_query->orderBy($this->startField.' ASC');
+        if (!$this->_orderBy) {
+            $this->_query->orderBy($this->startField . ' ASC');
         } else {
             $this->_query->orderBy($this->_orderBy);
         }
@@ -670,10 +739,10 @@ abstract class AbstractCalendarQuery extends Component
 
         $this->filterReadable();
 
-        if(Yii::$app->user->isGuest) {
+        if (Yii::$app->user->isGuest) {
             $this->filterGuests($this->_container);
         } else {
-            if($this->hasFilter(self::FILTER_USERRELATED)) {
+            if ($this->hasFilter(self::FILTER_USERRELATED)) {
                 $this->_userScopes = $this->_filters[self::FILTER_USERRELATED];
             }
 
@@ -681,7 +750,7 @@ abstract class AbstractCalendarQuery extends Component
                 $this->filterUserRelated();
             }
 
-            if($this->hasFilter(self::FILTER_DASHBOARD)) {
+            if ($this->hasFilter(self::FILTER_DASHBOARD)) {
                 $this->filterDashboard();
             }
 
@@ -714,25 +783,26 @@ abstract class AbstractCalendarQuery extends Component
      */
     protected function filterGuests(ContentContainerActiveRecord $container = null)
     {
-        if(!$this->_query instanceof ActiveQueryContent) {
+        if (!$this->_query instanceof ActiveQueryContent) {
             throw new FilterNotSupportedException('Guest filter not supported for this query');
         }
     }
 
-    protected function hasFilter($filter) {
+    protected function hasFilter($filter)
+    {
         return in_array($filter, $this->_filters) || array_key_exists($filter, $this->_filters);
     }
 
     protected function filterReadable()
     {
-        if($this->_query instanceof ActiveQueryContent) {
+        if ($this->_query instanceof ActiveQueryContent) {
             $this->_query->readable();
         }
     }
 
     protected function filterContentContainer()
     {
-        if($this->_query instanceof ActiveQueryContent) {
+        if ($this->_query instanceof ActiveQueryContent) {
             $this->_query->contentContainer($this->_container);
         } else {
             throw new FilterNotSupportedException('Contentcontainer filter not supported for this query');
@@ -741,7 +811,7 @@ abstract class AbstractCalendarQuery extends Component
 
     protected function filterUserRelated()
     {
-        if($this->_query instanceof ActiveQueryContent) {
+        if ($this->_query instanceof ActiveQueryContent) {
             $this->_query->userRelated($this->_userScopes);
         } else {
             throw new FilterNotSupportedException('User related filter not supported for this query');
@@ -750,11 +820,11 @@ abstract class AbstractCalendarQuery extends Component
 
     protected function filterDashboard()
     {
-        if(Yii::$app->user->isGuest) {
+        if (Yii::$app->user->isGuest) {
             throw new FilterNotSupportedException('User related filter not supported for this query');
         }
 
-        if(empty($this->_userScopes)) {
+        if (empty($this->_userScopes)) {
             $this->_userScopes = [ActiveQueryContent::USER_RELATED_SCOPE_SPACES, ActiveQueryContent::USER_RELATED_SCOPE_OWN_PROFILE];
             $this->filterUserRelated();
         }
@@ -762,8 +832,8 @@ abstract class AbstractCalendarQuery extends Component
 
     public function filterMine()
     {
-        if($this->_query instanceof ActiveQueryContent) {
-            $this->_query->andWhere(['content.created_by' => $this->_user->contentcontainer_id]);
+        if ($this->_query instanceof ActiveQueryContent) {
+            $this->_query->andWhere(['content.created_by' => $this->_user->id]);
         } else {
             throw new FilterNotSupportedException('Mine filter not supported for this query');
         }
