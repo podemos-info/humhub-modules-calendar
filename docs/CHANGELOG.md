@@ -1,17 +1,96 @@
 Changelog
 =========
 
+1.0.7 (March 26, 2020)
+---------------------
+- Chng: Updated grunt version to 1.1.0
+- Chng: More stable event error handling 
+- Fix #167: Can not remove calendar type, once a calendar type is set
+- Fix #173: Event cannot be moved to another Space
+- Fix #175: Implemented fallback for failed `calendar_entry_participant` user foreign key
+- Fix: Calendar permissions displayed on container without calendar module installed (https://github.com/humhub/humhub/issues/3828)
+
+1.0.6 (March 4, 2020)
+---------------------
+- Fix: Forbidden create entry attempts should result in 403 instead of Internal server error
+- Fix #174: Spelling in calendar settings of german translation
+- Enh: Updated translations
+
+1.0.5 (February 17, 2020)
+------------------------
+- Fix: recurrence_id unique index too long
+
+1.0.4 (February 5, 2020)
+------------------------
+- Enh: Updated translations
+
+1.0.3 (January, 17, 2020)
+-----------------------
+- Fix: container based calendar type updates overwrite global defaults
+- Fix: Default weekly recurrence day not based on initial start date
+- Enh #42: Use space color as default entry color
+- Enh #95: Make default color of calendar events configurable
+- Chng: Renamed `Other calendars` section to `Calendars` section, since default events are configurable now
+- Enh: Use of grunt to minify and concat assets
+- Chng: `CalendarService::getCalendarItemTypes()` now includes `CalendarEntryType`
+
+1.0.2 (January, 16, 2020)
+-----------------------
+- Fix: fullcalendar load url fails when using url rewrite
+
+1.0.1 (January, 16, 2020)
+-----------------------
+- Fix: Change default viewMode of legacy interface to `redirect`
+
+1.0.0 (January, 16, 2020)
+-----------------------
+- Chng: Switched from array based interfaces to real interfaces
+- Enh: Reminder support with reminder interface `CalendarEventReminderIF`
+- Enh: Introduction of new `CalendarEventParticipationIF`
+- Enh: Support of recurring events with recurring `RecurrentEventIF`
+- Chng: Introduced `FullCalendarEventIF` for additional event view settings
+- Fix #161: Error when accessing global configuration, in case the module is not enabled on profile level
+- Chng: Use of `helpers/Url` class
+- Fix #106: Issues with time validation in swedish and greek locale
+- Chng: Omitted timezone translation on all day events
+- Enh: Omit timezone information on all day events
+- Enh: Enhanced ICal export format
+- Fix #18: Incorrect Phrasing of Strings
+- Chng: Updated to fullcalendar v4
+- Enh: Added fullcalendar list view
+- Enh: translatable calendar view buttons
+- Enh: Enhanced mobile calendar view
+- Chng: Switch from inclusive to exclusive end date (23:59:59) on all day events
+- Fix #117: Date selection accepts invalid user input
+- Fix #155: AbstractCalendarQuery does not include events spanning over the search interval
+- Fix #78: Add date information to response activity
+- Enh #165: Improved mail html and text views
+
+
+0.7.5 (October 16, 2019)
+-----------------------
+- Fix: ExternalCalendarEntryQuery with either only start or only end not fails
+
+
+0.7.4 (October 16, 2019)
+-----------------------
+- Enh: Translation update
+
+
 0.7.3 (August 28, 2019)
 -----------------------
 - Fix: My events filter not working
+
 
 0.7.2 (August 22, 2019)
 -----------------------
 - Fix: `VCalendar::withEvents()` broken
 
+
 0.7.1 (August 22, 2019)
 -----------------------
 - Fix: Issue with PHP < 7 use of incompatible sabre/xml version
+
 
 0.7 (August 22, 2019)
 -----------------------
@@ -28,6 +107,7 @@ Changelog
 - Enh: Added rounded top border to global calendar view
 - Chng: Updated min version to 1.3.14
 
+
 0.6.23 (November 27, 2018)
 -----------------------
 - Enh: Use of new richtext
@@ -37,18 +117,22 @@ Changelog
 -----------------------
 - Fix: Hide permissions for space guest role
 
+
 0.6.21 (November 14, 2018)
 -----------------------
 - Fix: Same day events displaying wrong output date format
+
 
 0.6.20 (September 17, 2018)
 -----------------------
 - Enh: Added time information to force participation mail
 - Enh: Updated Translations
 
+
 0.6.19 (September 04, 2018)
 -----------------------
 - Fix: Other calendar configuration view not working
+
 
 0.6.18 (August 23, 2018)
 -----------------------
@@ -60,6 +144,7 @@ Changelog
 - Fix: Canceled event missing event title
 - Enh: Added move feature for HumHub >= 1.3.2
 - Fix: Global calendar types in space in space edit view
+
 
 0.6.17  (July 4, 2018)
 -----------------------

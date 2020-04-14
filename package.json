@@ -12,12 +12,26 @@
     "url": "git+https://github.com/humhub/humhub-modules-calendar.git"
   },
   "dependencies": {
-    "fullcalendar": "*"
+    "@fullcalendar/core": "^4.3.1",
+    "@fullcalendar/daygrid": "*",
+    "@fullcalendar/interaction": "*",
+    "@fullcalendar/list": "*",
+    "@fullcalendar/moment": "*",
+    "@fullcalendar/moment-timezone": "*",
+    "@fullcalendar/timegrid": "*",
+    "build-assets": "^0.1.0",
+    "moment": "^2.24.0",
+    "moment-timezone": "^0.5.27"
   },
   "author": "Julian Harrer",
   "license": "AGPL-3.0",
   "bugs": {
     "url": "https://github.com/humhub/humhub-modules-calendar/issues"
   },
-  "homepage": "https://github.com/humhub/humhub-modules-calendar#readme"
+  "homepage": "https://github.com/humhub/humhub-modules-calendar#readme",
+  "devDependencies": {
+    "grunt": "^1.1.0",
+    "grunt-contrib-concat": "^1.0.1",
+    "grunt-contrib-uglify": "^4.0.1"
+  }
 }

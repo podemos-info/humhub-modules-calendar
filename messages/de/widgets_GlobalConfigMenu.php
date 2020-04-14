@@ -1,7 +1,7 @@
 <?php
 return array (
+  'Calendars' => 'Kalender',
   'Defaults' => 'Standards',
   'Event Types' => 'Kategorie',
-  'Other Calendars' => 'Andere Kalender',
   'Snippet' => 'Widget',
 );
