@@ -72,11 +72,6 @@ class ContainerConfigMenu extends SettingsTabs
                 'active' => $this->isCurrentRoute('calendar', 'container-config', 'types'),
                 'visible' => Yii::$app->user->isAdmin()
             ],
-            [
-                'label' => Yii::t('CalendarModule.views_external_source_index', 'External Sources'),
-                'url' => $this->contentContainer->createUrl('/calendar/container-config/sources'),
-                'active' => $this->isCurrentRoute('calendar', 'container-config', 'sources')
-            ]
         ];
 
         if(!empty($calendarService->getCalendarItemTypes($this->contentContainer))) {

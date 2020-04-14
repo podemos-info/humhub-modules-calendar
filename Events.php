@@ -21,7 +21,6 @@ use humhub\modules\calendar\widgets\DownloadIcsLink;
 use humhub\modules\calendar\interfaces\CalendarService;
 use humhub\modules\calendar\widgets\ReminderLink;
 use humhub\modules\calendar\widgets\UpcomingEvents;
-use humhub\modules\calendar\models\CalendarExternalSource;
 use humhub\modules\content\models\Content;
 use humhub\modules\calendar\helpers\Url;
 use yii\db\StaleObjectException;
@@ -184,16 +183,6 @@ class Events
         } catch (\Throwable $e) {
             Yii::error($e);
         }
-    }
-    public static function onHourlyCron($event)
-    {
-        $controller = $event->sender;
-        $controller->stdout("Sync external events... ");
-        $sources = CalendarExternalSource::find()->orderBy('last_update')->where(array('valid' => 1))->limit(20);
-        foreach ($sources->each() as $source) {
-            $source->updateEvents();
-        }
-        $controller->stdout('done.' . PHP_EOL, \yii\helpers\Console::FG_GREEN);
     }
 
     public static function onWallEntryLinks($event)

@@ -10,7 +10,6 @@ use humhub\modules\space\models\Space;
 use humhub\modules\user\models\User;
 use humhub\modules\calendar\models\CalendarEntry;
 use humhub\modules\content\components\ContentContainerActiveRecord;
-use humhub\modules\calendar\models\CalendarExternalSource;
 
 class Module extends ContentContainerModule
 {
@@ -93,9 +92,6 @@ class Module extends ContentContainerModule
         foreach (CalendarEntry::find()->all() as $entry) {
             $entry->delete();
         }
-        foreach (CalendarExternalSource::find()->all() as $entry) {
-            $entry->delete();
-        }
 
         CalendarEntryType::deleteByModule();
         parent::disable();
@@ -108,9 +104,6 @@ class Module extends ContentContainerModule
     {
         parent::disableContentContainer($container);
         foreach (CalendarEntry::find()->contentContainer($container)->all() as $entry) {
-            $entry->delete();
-        }
-        foreach (CalendarExternalSource::find()->contentContainer($container)->all() as $entry) {
             $entry->delete();
         }
 

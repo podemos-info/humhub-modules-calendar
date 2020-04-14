@@ -13,7 +13,7 @@ use yii\web\AssetBundle;
 class CalendarBaseAssets extends AssetBundle
 {
     public $publishOptions = [
-        'forceCopy' => true
+        'forceCopy' => false
     ];
     
     public $sourcePath = '@calendar/resources';

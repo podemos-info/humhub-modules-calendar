@@ -43,8 +43,6 @@ use humhub\modules\user\models\User;
  * @property integer $all_day
  * @property integer $participation_mode
  * @property string $color
- * @property integer $external_source_id
- * @property string $external_id
  * @property string $uid
  * @property integer $allow_decline
  * @property integer $allow_maybe
@@ -169,7 +167,6 @@ class CalendarEntry extends ContentActiveRecord implements Searchable, Recurrent
     {
         return 'calendar_entry';
     }
-
 
     /**
      * @inheritdoc

@@ -15,7 +15,7 @@ use yii\web\AssetBundle;
 class CalendarAsset extends AssetBundle
 {
     public $publishOptions = [
-        'forceCopy' => true
+        'forceCopy' => false
     ];
     
     public $sourcePath = '@calendar/resources/js';

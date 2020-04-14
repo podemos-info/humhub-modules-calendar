@@ -19,7 +19,6 @@
     "@fullcalendar/moment": "*",
     "@fullcalendar/moment-timezone": "*",
     "@fullcalendar/timegrid": "*",
-    "build-assets": "^0.1.0",
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.27"
   },
