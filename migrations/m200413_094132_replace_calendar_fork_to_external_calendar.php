@@ -37,6 +37,7 @@ class m200413_094132_replace_calendar_fork_to_external_calendar extends Migratio
                     ->where(['content.object_model' => "humhub\modules\calendar\models\CalendarExternalSource"])
                     ->all();
                 foreach ($external_calendar_source as $row) {
+                    if(empty($row->color)){ $row->color = "#a34e45 " }
                     $data = ["ExternalCalendar" => [
                         "color"      => $row->color,
                         "title"      => $row->name,
@@ -49,6 +50,9 @@ class m200413_094132_replace_calendar_fork_to_external_calendar extends Migratio
                     $contentContainerModel = ContentContainer::findOne(['id' => $row->content->contentcontainer_id]);
                     $contentContainer = $contentContainerModel->getPolymorphicRelation();
                     if ($contentContainer !== null) {
+			//activamos el modulo para el contentcontainer
+                        $contentContainer->getModuleManager()->enable("calendar");
+                        $contentContainer->getModuleManager()->enable("external_calendar");
                         $model = new ExternalCalendar($contentContainer);
                         $model->content->created_by = $row->content->created_by;
                         $model->content->updated_by = $row->content->created_by;
