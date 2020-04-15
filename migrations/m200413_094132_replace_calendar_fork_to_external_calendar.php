@@ -11,6 +11,24 @@ use humhub\modules\external_calendar\models\ICalSync;
  */
 class m200413_094132_replace_calendar_fork_to_external_calendar extends Migration
 {
+
+    protected function is_working_url($url) {
+      $handle = curl_init($url);
+      curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
+      curl_setopt($handle, CURLOPT_NOBODY, true);
+      curl_exec($handle);
+     
+      $httpCode = curl_getinfo($handle, CURLINFO_HTTP_CODE);
+      curl_close($handle);
+     
+      if ($httpCode >= 200 && $httpCode < 300) {
+        return true;
+      }
+      else {
+        return false;
+      }
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -37,6 +55,9 @@ class m200413_094132_replace_calendar_fork_to_external_calendar extends Migratio
                     ->where(['content.object_model' => "humhub\modules\calendar\models\CalendarExternalSource"])
                     ->all();
                 foreach ($external_calendar_source as $row) {
+                    if(!$this->is_working_url($row->url)){
+                        continue;
+                    }
                     if(empty($row->color)){ $row->color = "#a34e45"; }
                     $data = ["ExternalCalendar" => [
                         "color"      => $row->color,
@@ -60,6 +81,7 @@ class m200413_094132_replace_calendar_fork_to_external_calendar extends Migratio
                             require_once(__DIR__ . "/../vendor/johngrogg/ics-parser/src/ICal/ICal.php");
                             require_once(__DIR__ . "/../vendor/johngrogg/ics-parser/src/ICal/Event.php");
                             require_once(__DIR__ . "/../vendor/simshaun/recurr/src/Recurr/Rule.php");
+                            require_once(__DIR__ . "/../vendor/nesbot/carbon/src/Carbon/Carbon.php");
                             
                                 $IcalSyncModel = new ICalSync(
                                     ['calendarModel' => $model, 'skipEvents' => true]
@@ -78,7 +100,6 @@ class m200413_094132_replace_calendar_fork_to_external_calendar extends Migratio
                 }
                 $calendar_external_source = CalendarExternalSource::deleteAll();
                 $this->dropTable('calendar_external_source');
-                $this->dropColumn('calendar_entry', 'external_uid');
        
     }
 

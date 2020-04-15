@@ -6,7 +6,9 @@
     "sabre/vobject": "4.2.1",
     "simshaun/recurr": "^4",
     "sabre/xml": "1.5.1",
-    "sabre/uri": "1.2.1"
+    "sabre/uri": "1.2.1",
+    "johngrogg/ics-parser": "^2",
+    "nesbot/carbon": "^1.39.0"
   },
   "config": {
     "process-timeout": 1800,

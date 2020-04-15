@@ -13,7 +13,7 @@ use yii\web\AssetBundle;
 class RecurrenceFormAssets extends AssetBundle
 {
     public $publishOptions = [
-        'forceCopy' => false
+        'forceCopy' => true
     ];
     
     public $sourcePath = '@calendar/resources';

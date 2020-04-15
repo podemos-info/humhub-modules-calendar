@@ -12,7 +12,7 @@ use yii\web\AssetBundle;
 
 class FullCalendarAssets extends AssetBundle
 {
-    public $publishOptions = ['forceCopy' => false];
+    public $publishOptions = ['forceCopy' => true];
     
     public $sourcePath = '@calendar/resources';
 
