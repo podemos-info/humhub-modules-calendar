@@ -1,3 +1,5 @@
+DEPRECATED!!! -> Toda la funcionalidad especifica del fork a sido migrada al modulo external_calendar
+
 [![Build Status](https://travis-ci.org/humhub/humhub-modules-calendar.svg?branch=master)](https://travis-ci.org/humhub/humhub-modules-calendar)
 
 # Calendar
